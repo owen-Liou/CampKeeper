@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: camp-app
+
+camp:
+  security:
+    strict-mode: true
+    token-source: ENV
+
