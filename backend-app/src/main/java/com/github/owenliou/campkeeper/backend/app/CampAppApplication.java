@@ -1,9 +1,9 @@
-package com.github.owen_liou.campkeeper.app;
+package com.github.owenliou.campkeeper.backend.app;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-@SpringBootApplication(scanBasePackages = "com.github.owen_liou.campkeeper")
+@SpringBootApplication(scanBasePackages = "com.github.owenliou.campkeeper")
 public class CampAppApplication {
 
     public static void main(String[] args) {

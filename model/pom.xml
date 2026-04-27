@@ -4,12 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>com.github.owen-Liou</groupId>
-        <artifactId>CampKeeper</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <groupId>com.github.owenliou</groupId>
+        <artifactId>CampKeeper.parent</artifactId>
+        <version>1.0.1</version>
     </parent>
 
     <artifactId>model</artifactId>
-
 
 </project>

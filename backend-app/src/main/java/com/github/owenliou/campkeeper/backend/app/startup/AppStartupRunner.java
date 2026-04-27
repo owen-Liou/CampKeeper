@@ -1,4 +1,4 @@
-package com.github.owen_liou.campkeeper.app.startup;
+package com.github.owenliou.campkeeper.backend.app.startup;
 
 import org.springframework.stereotype.Component;
 

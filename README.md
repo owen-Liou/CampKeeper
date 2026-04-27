@@ -10,7 +10,7 @@ Multi-module Spring Boot project.
 
 ## Package naming
 
-`groupId` contains a hyphen (`com.github.owen-Liou`), which is not valid in Java package names.
+`groupId` contains a hyphen (`com.github.owenliou`), which is not valid in Java package names.
 This project uses `com.github.owen_liou.campkeeper` for Java packages.
 
 ## Quick start

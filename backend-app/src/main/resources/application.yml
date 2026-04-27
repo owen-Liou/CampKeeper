@@ -1,6 +1,6 @@
 spring:
   application:
-    name: camp-app
+    name: backend-app
 
 camp:
   security:

@@ -1,4 +1,4 @@
-package com.github.owen_liou.campkeeper.base.service;
+package com.github.owenliou.campkeeper.base.service;
 
 import org.springframework.stereotype.Service;
 

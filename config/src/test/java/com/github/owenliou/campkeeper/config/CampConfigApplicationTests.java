@@ -1,10 +1,10 @@
-package com.github.owen_liou.campkeeper.base;
+package com.github.owenliou.campkeeper.config;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class CampBaseApplicationTests {
+class CampConfigApplicationTests {
 
     @Test
     void contextLoads() {

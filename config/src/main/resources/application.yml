@@ -1,9 +1,5 @@
 spring:
   application:
-    name: camp-config
-
-camp:
-  security:
-    strict-mode: true
-    token-source: ENV
-
+    name: CampKeeper
+  profiles:
+    active: dev    # 預設跑 dev
