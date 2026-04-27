@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://lab-db-host:5432/camping
+    username: ${DB_USER}      # 用環境變數，不寫死
+    password: ${DB_PASSWORD}
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: validate      # lab 不自動改 schema
