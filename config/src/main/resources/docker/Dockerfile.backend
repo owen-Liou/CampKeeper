@@ -1,0 +1,42 @@
+FROM eclipse-temurin:21-jdk-alpine AS builder
+
+WORKDIR /app
+
+# 安裝 Maven
+RUN apk add --no-cache maven
+
+# 複製 POM（利用 cache）
+COPY pom.xml ./
+COPY base/pom.xml base/
+COPY model/pom.xml model/
+COPY config/pom.xml config/
+COPY backend-app/pom.xml backend-app/
+
+# 下載依賴
+RUN mvn dependency:go-offline -B
+
+# 複製原始碼
+COPY base/src base/src
+COPY model/src model/src
+COPY config/src config/src
+COPY backend-app/src backend-app/src
+
+# 打包
+RUN mvn clean package -pl backend-app -am -DskipTests -Pdev
+
+# ────────────────────────────────
+FROM eclipse-temurin:21-jre-alpine AS runner
+
+WORKDIR /app
+
+RUN addgroup -S campkeeper && adduser -S campkeeper -G campkeeper
+
+COPY --from=builder /app/backend-app/target/*.jar app.jar
+
+RUN chown campkeeper:campkeeper app.jar
+
+USER campkeeper
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
