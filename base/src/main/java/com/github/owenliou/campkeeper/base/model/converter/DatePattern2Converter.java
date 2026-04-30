@@ -9,7 +9,6 @@ import java.time.LocalDate;
 
 /**
  * yyyy-MM-dd
- * {@link com.github.owenliou.campkeeper.variables.DEFAULT_SETTINGS.DATE_FORMATTER_2}
  * com.github.owenliou.campkeeper.variables
  */
 @Converter

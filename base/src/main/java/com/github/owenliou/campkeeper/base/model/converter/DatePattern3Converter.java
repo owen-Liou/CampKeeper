@@ -9,7 +9,6 @@ import java.time.LocalDate;
 
 /**
  * yyyyMMdd
- * {@link com.github.owenliou.campkeeper.variables.DEFAULT_SETTINGS.DATE_FORMATTER_3}
  */
 @Converter
 public class DatePattern3Converter implements AttributeConverter<LocalDate, String> {

@@ -13,6 +13,12 @@
 
     <artifactId>backend-app</artifactId>
     <packaging>jar</packaging>
+    <name>backend-app</name>
+    <description>backend-app</description>
+
+    <properties>
+        <version>1.0.1</version>
+    </properties>
 
     <dependencies>
 
@@ -28,6 +34,25 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.owenliou</groupId>
+            <artifactId>model</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.github.owenliou</groupId>
+            <artifactId>base</artifactId>
+            <version>${version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
         </dependency>
 
     </dependencies>
