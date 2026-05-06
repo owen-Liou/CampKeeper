@@ -1,6 +1,6 @@
 package com.github.owenliou.campkeeper.base.model.converter;
 
-import com.github.owenliou.campkeeper.variables.DEFAULT_SETTINGS;
+import com.github.owenliou.campkeeper.config.variables.DEFAULT_SETTINGS;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 import org.apache.commons.lang3.StringUtils;

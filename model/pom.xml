@@ -7,9 +7,11 @@
         <groupId>com.github.owenliou</groupId>
         <artifactId>CampKeeper.parent</artifactId>
         <version>1.0.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>model</artifactId>
+
 
     <dependencies>
         <dependency>
@@ -19,6 +21,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

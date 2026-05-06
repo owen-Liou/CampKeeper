@@ -1,9 +1,19 @@
 spring:
-  application:
-    name: backend-app
+    application:
+      name : backend-app
+    profiles:
+        active: @profiles.active@
+    datasource:
+        url: jdbc:postgresql://localhost:5432/bugtracker
+        username: postgres
+        password: password
+        driver-class-name: org.postgresql.Driver
+    jpa:
+      open-in-view: false
 
-camp:
-  security:
-    strict-mode: true
-    token-source: ENV
+server:
+    port: 8080
+    servlet:
+        context-path: /backend-app
+
 
