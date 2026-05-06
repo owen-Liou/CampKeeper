@@ -1,7 +1,5 @@
 package com.github.owenliou.campkeeper.web.common.sso.service.impl;
 
-import com.changing.util.tools.StringUtils;
-import com.github.owenliou.campkeeper.config.variables.IDs;
 import com.github.owenliou.campkeeper.config.variables.Profiles;
 import com.github.owenliou.campkeeper.web.common.sso.model.SsoUserDetails;
 import com.github.owenliou.campkeeper.web.common.sso.service.PrivilegeService;
@@ -66,32 +64,5 @@ public class PrivilegeServiceImpl implements PrivilegeService {
 
         return Optional.empty();
     }
-
-    @Override
-    public Optional<String> getProviderId() {
-        if (hasLoginInfo()) {
-            return Optional.of(String.valueOf(getCurrentSsoUserDetails().getIdToken().getProviderId()));
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean isMyDp(String dpId) {
-        if (isAdmin()) {
-            return true;
-        }
-
-        if (StringUtils.isBlank(dpId)) {
-            return false;
-        }
-
-        return getProviderId().orElse(IDs.NOT_EXISTS).equals(dpId);
-    }
-
-    @Override
-    public boolean isNotMyDp(String dpId) {
-        return !isMyDp(dpId);
-    }
-
 
 }

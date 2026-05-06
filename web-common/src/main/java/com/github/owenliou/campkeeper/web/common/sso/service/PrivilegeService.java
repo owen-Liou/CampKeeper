@@ -28,21 +28,5 @@ public interface PrivilegeService {
      */
     Optional<String> getAccount();
 
-    /**
-     * 機關代號
-     */
-    Optional<String> getProviderId();
-
-    /**
-     * 是我權限範圍內的 DP
-     * @param dpId
-     */
-    boolean isMyDp(String dpId);
-
-    /**
-     * 不是我權限範圍內的 DP
-     * @param dpId
-     */
-    boolean isNotMyDp(String dpId);
 
 }
