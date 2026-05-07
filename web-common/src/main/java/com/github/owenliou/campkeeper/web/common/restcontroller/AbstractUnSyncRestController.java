@@ -23,7 +23,7 @@ import com.github.owenliou.campkeeper.web.common.sso.service.PrivilegeService;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
-public abstract class AbstractRestController {
+public abstract class AbstractUnSyncRestController {
 
     @Autowired
     protected PrivilegeService privilegeService;

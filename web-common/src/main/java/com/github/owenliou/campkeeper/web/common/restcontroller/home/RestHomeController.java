@@ -2,7 +2,7 @@ package com.github.owenliou.campkeeper.web.common.restcontroller.home;
 
 import com.github.owenliou.campkeeper.common.CustomResult;
 import com.github.owenliou.campkeeper.config.variables.Profiles;
-import com.github.owenliou.campkeeper.web.common.restcontroller.AbstractRestController;
+import com.github.owenliou.campkeeper.web.common.restcontroller.AbstractUnSyncRestController;
 import com.github.owenliou.campkeeper.web.common.sso.dto.CustomIdToken;
 import com.github.owenliou.campkeeper.web.common.sso.service.PrivilegeService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
 @Tag(name = "API Root", description = "測試用")
-public class RestHomeController extends AbstractRestController
+public class RestHomeController extends AbstractUnSyncRestController
 {
 
     @Autowired

@@ -218,7 +218,7 @@ public class CampsiteController extends AbstractRestController {
     @Operation(summary = "獲取營地詳情")
     public Mono<ResponseEntity<BaseReply>> getCampsite(@PathVariable Long id) {
         Campsite campsite = service.findById(id)
-            .orElseThrow(() -> new EndpointNotFoundException("Campsite not found"));
+            .orElseThrow(() -> new CampNotFoundException("Campsite not found"));
         return ok(converter.convert(campsite));
     }
     
@@ -291,8 +291,8 @@ public class AdminController extends AbstractRestController {
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     
-    @ExceptionHandler(EndpointNotFoundException.class)
-    public ResponseEntity<BaseReply> handleNotFound(EndpointNotFoundException e) {
+    @ExceptionHandler(CampNotFoundException.class)
+    public ResponseEntity<BaseReply> handleNotFound(CampNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
             .body(new BaseReply(SysCode.NOT_FOUND, e.getMessage(), null, null));
     }

@@ -165,14 +165,14 @@ LogUtils.notProdLogWarn("Warning: {}", message);
 | 異常類 | HTTP 狀態 | 用途 |
 |--------|---------|------|
 | `RestCustomException` | 自訂 | 自訂 REST 異常（包含 HTTP 狀態碼） |
-| `EndpointNotFoundException` | 404 | 端點不存在 |
+| `CampNotFoundException` | 404 | 端點不存在 |
 | `ForbiddenException` | 403 | 禁止訪問 |
 | `DtoConverterException` | 500 | DTO 轉換錯誤 |
 
 **使用範例**：
 ```java
-@ExceptionHandler(EndpointNotFoundException.class)
-public ResponseEntity<ErrorResponse> handleNotFound(EndpointNotFoundException e) {
+@ExceptionHandler(CampNotFoundException.class)
+public ResponseEntity<ErrorResponse> handleNotFound(CampNotFoundException e) {
     return ResponseEntity.status(HttpStatus.NOT_FOUND)
         .body(new ErrorResponse("Endpoint not found", e.getMessage()));
 }
@@ -298,10 +298,10 @@ public class CampsiteController {
     public CustomResult<CampsiteDTO> getCampsite(@PathVariable Long id) {
         try {
             Campsite campsite = service.findById(id)
-                .orElseThrow(() -> new EndpointNotFoundException("Campsite not found"));
+                .orElseThrow(() -> new CampNotFoundException("Campsite not found"));
             CampsiteDTO dto = converter.convert(campsite);
             return CustomResult.result(true, dto);
-        } catch (EndpointNotFoundException e) {
+        } catch (CampNotFoundException e) {
             return CustomResult.result(false, null);
         }
     }
