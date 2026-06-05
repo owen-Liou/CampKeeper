@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 營地數據存取層
@@ -14,6 +15,8 @@ import java.util.List;
  */
 @Repository
 public interface CampsiteRepository extends CustomRespository<Campsite, Long> {
+
+    Optional<Campsite> findByStoreName(String storeName);
 
     /**
      * 根據縣市查詢營地

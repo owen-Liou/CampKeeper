@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * 暫時不使用，用預設值
  */
-@Configuration
+//@Configuration
 public class SwaggerConfiguration {
 
     @Value("${swagger.description}")

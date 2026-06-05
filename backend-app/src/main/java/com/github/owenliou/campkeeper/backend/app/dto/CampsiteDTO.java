@@ -44,6 +44,12 @@ public class CampsiteDTO {
     @JsonProperty("petFriendly")
     private Boolean petFriendly;    // 寵物友善
 
+    private String storeName;   // 愛露營識別碼
+
+    private String area;        // 大區域
+
+    private String facilities;  // 設施列表（JSON array）
+
     private String sourceUrl;   // 資料來源
 
     @JsonProperty("createdAt")

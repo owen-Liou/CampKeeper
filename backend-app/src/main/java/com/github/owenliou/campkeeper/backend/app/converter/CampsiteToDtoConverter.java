@@ -33,6 +33,9 @@ public class CampsiteToDtoConverter extends AbstractDtoConverter<Campsite, Camps
             .hasPower(source.getHasPower())
             .hasShower(source.getHasShower())
             .petFriendly(source.getPetFriendly())
+            .storeName(source.getStoreName())
+            .area(source.getArea())
+            .facilities(source.getFacilities())
             .sourceUrl(source.getSourceUrl())
             .createdAt(source.getCreatedAt())
             .updatedAt(source.getUpdatedAt())
@@ -60,6 +63,9 @@ public class CampsiteToDtoConverter extends AbstractDtoConverter<Campsite, Camps
             .hasPower(target.getHasPower())
             .hasShower(target.getHasShower())
             .petFriendly(target.getPetFriendly())
+            .storeName(target.getStoreName())
+            .area(target.getArea())
+            .facilities(target.getFacilities())
             .sourceUrl(target.getSourceUrl())
             .build();
     }

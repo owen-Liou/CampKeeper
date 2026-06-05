@@ -52,6 +52,15 @@ public class Campsite {
     @Column(name = "pet_friendly")
     private Boolean petFriendly = false;    // 寵物友善
 
+    @Column(name = "store_name", unique = true, length = 50)
+    private String storeName;   // 愛露營唯一識別碼（用於 upsert）
+
+    @Column(length = 20)
+    private String area;        // 大區域（北部/中部/南部/東部）
+
+    @Column(columnDefinition = "TEXT")
+    private String facilities;  // 設施列表（JSON array）
+
     @Column(name = "source_url", length = 255)
     private String sourceUrl;   // 資料來源（爬蟲用）
 

@@ -17,4 +17,6 @@ public interface CampsiteService extends CommonService<Campsite, Long> {
 
     void deleteCampsite(String campsiteId);
 
+    int syncFromICamping();
+
 }

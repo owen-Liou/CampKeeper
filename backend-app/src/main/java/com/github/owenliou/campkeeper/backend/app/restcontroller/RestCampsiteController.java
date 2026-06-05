@@ -4,7 +4,6 @@ import com.github.owenliou.campkeeper.backend.app.converter.CampsiteToDtoConvert
 import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDTO;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.common.CustomResult;
-import com.github.owenliou.campkeeper.common.exception.CampNotFoundException;
 import com.github.owenliou.campkeeper.model.entity.Campsite;
 import com.github.owenliou.campkeeper.web.common.restcontroller.AbstractSyncRestController;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +11,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 營地管理 REST 控制器
@@ -27,6 +28,20 @@ public class RestCampsiteController extends AbstractSyncRestController {
 
     @Autowired
     private CampsiteToDtoConverter campsiteToDtoConverter;
+
+    @GetMapping
+    @Operation(summary = "查詢所有營地", description = "列出所有營地資訊")
+    public CustomResult<List<CampsiteDTO>> getAll() {
+        List<Campsite> campsites = campsiteService.findAll();
+        return CustomResult.result(true, campsiteToDtoConverter.convertEach(campsites));
+    }
+
+    @PostMapping("/sync")
+    @Operation(summary = "同步iCamping資料", description = "從iCamping API 匯入最新營地資料")
+    public CustomResult<String> sync() {
+        int count = campsiteService.syncFromICamping();
+        return CustomResult.result(true, "同步完成，共更新 " + count + " 筆營地資料");
+    }
 
     /**
      * 根據 ID 查詢單筆營地
@@ -58,11 +73,9 @@ public class RestCampsiteController extends AbstractSyncRestController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "刪除營地", description = "根據營地 ID 刪除營地資訊")
-    public CustomResult<Void> delete(@PathVariable String id) {
+    public void  delete(@PathVariable String id) {
         campsiteService.deleteCampsite(id);
 
-        // 成功執行到這，代表刪除完成
-        return CustomResult.result(true, null);
     }
 
 }

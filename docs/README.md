@@ -1,7 +1,7 @@
 # CampKeeper — 系統功能規劃與 API 設計
 
 > Side project：露營小幫手  
-> 技術棧：Java 21 / Spring Boot 3.5 / PostgreSQL / Python / Docker / Telegram Bot
+> 技術棧：Java 21 / Spring Boot 3.5 / PostgreSQL / Docker / Telegram Bot
 
 ---
 
@@ -12,9 +12,10 @@ CampKeeper/
 ├── backend-app/     # Spring Boot 主入口、Controller、Service
 ├── base/            # 共用工具、例外處理、常數
 ├── config/          # 所有設定、properties、profile
-├── model/           # JPA Entity、Repository、DTO
-├── camp-crawler/    # Python 爬蟲（獨立模組）
-└── docker-compose.yml
+├── model/           # JPA Entity、Repository
+├── common/          # 共用 adapter、converter
+├── web-common/      # Web 層共用（Swagger、GlobalExceptionHandler）
+└── config/src/main/resources/docker/  # Docker Compose
 ```
 
 ### 模組依賴關係
@@ -24,6 +25,8 @@ backend-app
   └── depends on → model
   └── depends on → config
   └── depends on → base
+  └── depends on → common
+  └── depends on → web-common
 
 model
   └── depends on → base
@@ -31,76 +34,81 @@ model
 
 ---
 
-## 開發時程
-
-| 時程 | Phase | 目標 |
-|------|-------|------|
-| Week 1–3 | Phase 1 | 營地資料庫 CRUD |
-| Week 4–5 | Phase 2 | 爬蟲 + Telegram 通知 |
-| Week 6+  | Phase 3 | 二手裝備市集 |
-
----
-
-
 ## 程式碼結構
 
 ```
-backend-app/src/main/java/com/github/owenliou/campkeeper/app/
-├── controller/
-│   └── CampsiteController.java
+backend-app/src/main/java/.../backend/app/
+├── restcontroller/
+│   └── RestCampsiteController.java
 ├── service/
 │   ├── CampsiteService.java
 │   └── impl/
 │       └── CampsiteServiceImpl.java
-└── dto/
-    ├── CampsiteRequest.java
-    └── CampsiteResponse.java
+├── repository/
+│   └── CampsiteRepository.java
+├── converter/
+│   └── CampsiteToDtoConverter.java
+├── dto/
+│   └── CampsiteDTO.java
+└── integration/
+    └── icamping/               # 愛露營 API client
+        ├── ICampingClient.java
+        └── dto/
+            ├── ICampingStore.java
+            └── ICampingStoreListResponse.java
 
-model/src/main/java/com/github/owenliou/campkeeper/model/
+model/src/main/java/.../model/
 ├── entity/
 │   └── Campsite.java
 └── repository/
     └── CampsiteRepository.java
 ```
 
+---
 
+## Campsite API
+
+| Method | Path | 說明 |
+|--------|------|------|
+| GET | `/api/v1/campsites` | 查詢所有營地 |
+| GET | `/api/v1/campsites/{id}` | 查詢單筆營地 |
+| POST | `/api/v1/campsites/create` | 新增營地 |
+| PUT | `/api/v1/campsites/{id}` | 更新營地 |
+| DELETE | `/api/v1/campsites/{id}` | 刪除營地 |
+| POST | `/api/v1/campsites/sync` | 從愛露營 API 同步所有營地資料 |
+
+> Context path: `/backend-app`，完整範例：`POST http://localhost:8080/backend-app/api/v1/campsites/sync`
 
 ---
 
-## Phase 2 — 空位通知爬蟲
+## Campsite Entity 欄位
 
-**目標：自動偵測空營位並推播通知**
-
-### 功能清單
-
-- Python 爬蟲定時抓取營地空位資訊
-- 使用者訂閱指定營地 + 日期
-- Spring Scheduler 定期比對，有空位即觸發
-- Telegram Bot 推播通知
-
-### 爬蟲架構
-
-```
-camp-crawler/
-├── requirements.txt       # requests, beautifulsoup4, psycopg2-binary
-├── main.py
-└── scrapers/
-    └── base_scraper.py
-```
-
+| 欄位 | 類型 | 說明 |
+|------|------|------|
+| id | Long | 自增主鍵 |
+| storeName | String | 愛露營唯一識別碼（upsert key） |
+| name | String | 營地中文名稱 |
+| area | String | 大區域（北部/中部/南部/東部） |
+| city | String | 縣市 |
+| district | String | 鄉鎮區 |
+| altitude | Integer | 海拔（公尺） |
+| hasPower | Boolean | 有無電源 |
+| petFriendly | Boolean | 寵物友善 |
+| facilities | TEXT | 設施列表（JSON array） |
+| latitude / longitude | BigDecimal | 座標（愛露營 API 未提供，預留） |
 
 ---
 
-## Phase 3 — 二手裝備市集
+## 愛露營 API 整合
 
-**目標：關鍵字訂閱，裝備上架即通知**
+資料來源使用逆向自愛露營（iLoveCamping）前端的 guest API，不需要登入。
 
-### 功能清單
-
-- 使用者自行刊登二手裝備（品項 / 價格 / 狀況 / 附圖）
-- 關鍵字訂閱（睡袋、天幕...）
-- 有新貼文符合關鍵字即 Telegram 推播
-- Facebook 社團爬蟲（進階，Meta API 限制多，Phase 3 後期）
+| 項目 | 說明 |
+|------|------|
+| 資料取得方式 | 呼叫 `/api/guest/v1/store/list` 取得全部營地 |
+| 同步策略 | 手動觸發（`POST /sync`），以 `store_name` 為 key 做 upsert |
+| 設施解析 | `facility[]` 陣列整體存 JSON，關鍵標籤（電源/寵物）另存 boolean |
+| 設定位置 | `config/src/main/resources/dev/application-dev.yml` |
 
 ---
 
@@ -111,8 +119,8 @@ camp-crawler/
 | Backend API | Spring Boot 3.5 / Java 21 |
 | ORM | Spring Data JPA / Hibernate |
 | Database | PostgreSQL 15 |
-| 爬蟲 | Python / BeautifulSoup |
-| 推播通知 | Telegram Bot API |
+| HTTP Client | Spring RestClient（內建於 spring-boot-starter-web） |
+| 推播通知 | Telegram Bot API（規劃中） |
 | 容器化 | Docker Compose |
 | 未來擴充 | K8s（流量成長後遷移） |
 
@@ -122,22 +130,17 @@ camp-crawler/
 
 ```
 config/src/main/resources/
-├── application.yml          # 共用（app name）
+├── application.yml              # 共用（app name）
 ├── dev/
-│   └── application.yml      # 本機開發 DB
+│   └── application-dev.yml      # 本機開發 DB + 愛露營 API key
 └── prod/
-    └── application.yml      # 正式環境 DB（環境變數）
+    └── application-prod.yml     # 正式環境 DB（環境變數）
 ```
 
 ```yaml
-# prod/application.yml
-spring:
-  datasource:
-    url: jdbc:postgresql://camp-keeper-db:5432/camping
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
-  jpa:
-    show-sql: false
-    hibernate:
-      ddl-auto: validate
+# dev/application-dev.yml
+icamping:
+  api:
+    base-url: https://api-guest-prod-tier-1-wwclgij22a-an.a.run.app
+    key: <firebase-web-api-key>
 ```
