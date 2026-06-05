@@ -8,6 +8,7 @@ import com.github.owenliou.campkeeper.backend.app.external.icamping.client.ICamp
 import com.github.owenliou.campkeeper.backend.app.external.icamping.dto.ICampingStore;
 import com.github.owenliou.campkeeper.backend.app.repository.CampsiteRepository;
 import com.github.owenliou.campkeeper.backend.app.service.AbstractService;
+import com.github.owenliou.campkeeper.backend.app.service.CampsiteEmbeddingService;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.common.exception.CampNotFoundException;
 import com.github.owenliou.campkeeper.model.entity.Campsite;
@@ -37,6 +38,9 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
     @Autowired
     private ICampingClient iCampingClient;
 
+    @Autowired
+    private CampsiteEmbeddingService embeddingService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -49,7 +53,9 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
     @Override
     public Campsite createCampsite(CampsiteDTO campsiteDto) {
         Campsite campsite = campsiteToDtoConverter.reverse(campsiteDto);
-        return save(campsite);
+        Campsite saved = save(campsite);
+        embeddingService.upsertEmbedding(saved);
+        return saved;
     }
 
     @Override
@@ -70,7 +76,9 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
         existingCampSite.setArea(campsiteDto.getArea());
         existingCampSite.setFacilities(campsiteDto.getFacilities());
         existingCampSite.setSourceUrl(campsiteDto.getSourceUrl());
-        return save(existingCampSite);
+        Campsite saved = save(existingCampSite);
+        embeddingService.upsertEmbedding(saved);
+        return saved;
     }
 
     @Override
@@ -94,7 +102,8 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
             Campsite campsite = repository.findByStoreName(store.getStoreName())
                     .orElse(new Campsite());
             mapStoreToEntity(store, campsite);
-            save(campsite);
+            Campsite saved = save(campsite);
+            embeddingService.upsertEmbedding(saved);
             count++;
         }
         return count;

@@ -23,12 +23,13 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://camp-keeper-db:5432/camping
       - SPRING_DATASOURCE_USERNAME=admin
       - SPRING_DATASOURCE_PASSWORD=password
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       camp-keeper-db:
         condition: service_healthy   # ← 等 DB 健康才啟動 app
 
   camp-keeper-db:
-    image: postgres:15-alpine        # ← 加 alpine，小一點
+    image: pgvector/pgvector:pg15    # ← 換成 pgvector image，內建 vector extension
     container_name: camp-keeper-db
     hostname: camp-keeper-db
     environment:

@@ -39,6 +39,7 @@
         <bouncycastle.version>1.80</bouncycastle.version>
         <httpclient5.version>5.4.4</httpclient5.version>
         <gson.version>2.13.1</gson.version>
+        <spring-ai.version>1.1.7</spring-ai.version>
 
     </properties>
 
@@ -57,10 +58,21 @@
             <id>project-local</id>
             <url>file://${maven.multiModuleProjectDirectory}/lib</url>
         </repository>
+        <repository>
+            <id>spring-milestones</id>
+            <url>https://repo.spring.io/milestone</url>
+        </repository>
     </repositories>
 
     <dependencyManagement>
         <dependencies>
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>${spring-ai.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter</artifactId>

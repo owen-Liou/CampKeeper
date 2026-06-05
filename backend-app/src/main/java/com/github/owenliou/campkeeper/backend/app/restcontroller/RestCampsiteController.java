@@ -2,9 +2,11 @@ package com.github.owenliou.campkeeper.backend.app.restcontroller;
 
 import com.github.owenliou.campkeeper.backend.app.converter.CampsiteToDtoConverter;
 import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDTO;
+import com.github.owenliou.campkeeper.backend.app.service.CampsiteEmbeddingService;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.common.CustomResult;
 import com.github.owenliou.campkeeper.model.entity.Campsite;
+import java.util.List;
 import com.github.owenliou.campkeeper.web.common.restcontroller.AbstractSyncRestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,6 +31,9 @@ public class RestCampsiteController extends AbstractSyncRestController {
 
     @Autowired
     private CampsiteToDtoConverter campsiteToDtoConverter;
+
+    @Autowired
+    private CampsiteEmbeddingService embeddingService;
 
     @GetMapping
     @Operation(summary = "查詢營地列表", description = "支援分頁與縣市篩選，預設每頁 20 筆")
@@ -76,9 +81,20 @@ public class RestCampsiteController extends AbstractSyncRestController {
 
     @DeleteMapping("/{id}")
     @Operation(summary = "刪除營地", description = "根據營地 ID 刪除營地資訊")
-    public void  delete(@PathVariable String id) {
+    public void delete(@PathVariable String id) {
         campsiteService.deleteCampsite(id);
+    }
 
+    @GetMapping("/search/ai")
+    @Operation(summary = "AI 自然語言搜尋", description = "用自然語言描述想找的營地，例如：寵物友善台中高山有電")
+    public CustomResult<List<CampsiteDTO>> aiSearch(
+            @Parameter(description = "自然語言查詢") @RequestParam String query,
+            @Parameter(description = "回傳筆數") @RequestParam(defaultValue = "10") int topK) {
+        List<CampsiteDTO> result = embeddingService.semanticSearch(query, topK)
+            .stream()
+            .map(campsiteToDtoConverter::convert)
+            .toList();
+        return CustomResult.result(true, result);
     }
 
 }
