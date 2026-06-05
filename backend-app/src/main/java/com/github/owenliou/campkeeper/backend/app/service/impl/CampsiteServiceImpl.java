@@ -15,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 
 /**
@@ -53,6 +56,20 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
     public Campsite updateCampsite(CampsiteDTO campsiteDto) {
         Long id = campsiteDto.getId();
         Campsite existingCampSite = findById(id).orElseThrow(() -> new CampNotFoundException("Campsite not found with id: " + id));
+        existingCampSite.setName(campsiteDto.getName());
+        existingCampSite.setDescription(campsiteDto.getDescription());
+        existingCampSite.setCity(campsiteDto.getCity());
+        existingCampSite.setDistrict(campsiteDto.getDistrict());
+        existingCampSite.setAltitude(campsiteDto.getAltitude());
+        existingCampSite.setLatitude(campsiteDto.getLatitude());
+        existingCampSite.setLongitude(campsiteDto.getLongitude());
+        existingCampSite.setHasPower(campsiteDto.getHasPower());
+        existingCampSite.setHasShower(campsiteDto.getHasShower());
+        existingCampSite.setPetFriendly(campsiteDto.getPetFriendly());
+        existingCampSite.setStoreName(campsiteDto.getStoreName());
+        existingCampSite.setArea(campsiteDto.getArea());
+        existingCampSite.setFacilities(campsiteDto.getFacilities());
+        existingCampSite.setSourceUrl(campsiteDto.getSourceUrl());
         return save(existingCampSite);
     }
 
@@ -61,6 +78,11 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
         Long id = Long.parseLong(campsiteId);
         Campsite existingCampSite = findById(id).orElseThrow(() -> new CampNotFoundException("Campsite not found with id: " + id));
         delete(existingCampSite);
+    }
+
+    @Override
+    public Page<Campsite> searchCampsites(String city, Pageable pageable) {
+        return repository.searchPaged(city, pageable);
     }
 
     @Override

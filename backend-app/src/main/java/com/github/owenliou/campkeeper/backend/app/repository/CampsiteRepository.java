@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -32,6 +35,9 @@ public interface CampsiteRepository extends CustomRespository<Campsite, Long> {
      * 根據寵物友善度查詢營地
      */
     List<Campsite> findByPetFriendly(Boolean petFriendly);
+
+    @Query("SELECT c FROM Campsite c WHERE (:city IS NULL OR c.city = :city)")
+    Page<Campsite> searchPaged(@Param("city") String city, Pageable pageable);
 
     /**
      * 複合條件查詢（使用 JPQL）

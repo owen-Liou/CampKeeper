@@ -38,6 +38,10 @@ model
 
 ```
 backend-app/src/main/java/.../backend/app/
+├── config/
+│   ├── RestClientConfig.java       # RestClient bean 集中管理
+│   ├── SecurityConfig.java         # Spring Security 設定
+│   └── SwaggerConfig.java
 ├── restcontroller/
 │   └── RestCampsiteController.java
 ├── service/
@@ -50,12 +54,16 @@ backend-app/src/main/java/.../backend/app/
 │   └── CampsiteToDtoConverter.java
 ├── dto/
 │   └── CampsiteDTO.java
-└── integration/
-    └── icamping/               # 愛露營 API client
-        ├── ICampingClient.java
-        └── dto/
-            ├── ICampingStore.java
-            └── ICampingStoreListResponse.java
+└── external/
+    └── icamping/                   # iCamping 外部 API 整合
+        ├── client/
+        │   └── ICampingClient.java
+        ├── dto/
+        │   ├── ICampingStore.java
+        │   └── ICampingStoreListResponse.java
+        └── variables/
+            ├── ICampingApiPath.java # API 路徑 enum
+            └── ICampingApiKey.java  # API key enum
 
 model/src/main/java/.../model/
 ├── entity/
@@ -99,16 +107,21 @@ model/src/main/java/.../model/
 
 ---
 
-## 愛露營 API 整合
+## iCamping API 整合
 
-資料來源使用逆向自愛露營（iLoveCamping）前端的 guest API，不需要登入。
+資料來源使用逆向自 iCamping mobile web（`m.icamping.app`）的 guest API，不需要登入。
 
 | 項目 | 說明 |
 |------|------|
-| 資料取得方式 | 呼叫 `/api/guest/v1/store/list` 取得全部營地 |
+| 資料取得方式 | 呼叫 `ICampingApiPath.STORE_LIST` 取得全部營地 |
 | 同步策略 | 手動觸發（`POST /sync`），以 `store_name` 為 key 做 upsert |
 | 設施解析 | `facility[]` 陣列整體存 JSON，關鍵標籤（電源/寵物）另存 boolean |
+| API 路徑管理 | `ICampingApiPath` enum（STORE_LIST / STORE_LIST_TOP / STUFF_LIST / EXTERNAL_LINK_LIST） |
+| API Key 管理 | `ICampingApiKey` enum |
+| RestClient 設定 | `RestClientConfig`（base-url、Origin/Referer header 集中管理） |
 | 設定位置 | `config/src/main/resources/dev/application-dev.yml` |
+
+> **注意：** Origin / Referer 必須為 `https://m.icamping.app`，使用其他 origin 會被 API 拒絕（403）。
 
 ---
 

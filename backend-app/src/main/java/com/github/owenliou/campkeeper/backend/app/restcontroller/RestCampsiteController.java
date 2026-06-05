@@ -10,9 +10,10 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * 營地管理 REST 控制器
@@ -30,10 +31,12 @@ public class RestCampsiteController extends AbstractSyncRestController {
     private CampsiteToDtoConverter campsiteToDtoConverter;
 
     @GetMapping
-    @Operation(summary = "查詢所有營地", description = "列出所有營地資訊")
-    public CustomResult<List<CampsiteDTO>> getAll() {
-        List<Campsite> campsites = campsiteService.findAll();
-        return CustomResult.result(true, campsiteToDtoConverter.convertEach(campsites));
+    @Operation(summary = "查詢營地列表", description = "支援分頁與縣市篩選，預設每頁 20 筆")
+    public CustomResult<Page<CampsiteDTO>> getAll(
+            @Parameter(description = "縣市篩選，例如：台中市") @RequestParam(required = false) String city,
+            @PageableDefault(size = 20, sort = "id") Pageable pageable) {
+        Page<CampsiteDTO> page = campsiteService.searchCampsites(city, pageable).map(campsiteToDtoConverter::convert);
+        return CustomResult.result(true, page);
     }
 
     @PostMapping("/sync")
