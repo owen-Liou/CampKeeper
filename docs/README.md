@@ -179,7 +179,7 @@ GET /api/v1/campsites/search/ai?query=寵物友善台中高山有電&topK=10
 
 AI 搜尋請求
   └── GET /search/ai?query=...
-        └── CampsiteEmbeddingService.semanticSearch()
+        └── CampsiteEmbeddingService.semanticSearchCamp()
               └── query → embedding → cosine similarity search
                     └── 回傳最相近的 Campsite 列表
 ```

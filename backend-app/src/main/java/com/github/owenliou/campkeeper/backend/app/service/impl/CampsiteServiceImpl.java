@@ -8,7 +8,7 @@ import com.github.owenliou.campkeeper.backend.app.external.icamping.client.ICamp
 import com.github.owenliou.campkeeper.backend.app.external.icamping.dto.ICampingStore;
 import com.github.owenliou.campkeeper.backend.app.repository.CampsiteRepository;
 import com.github.owenliou.campkeeper.backend.app.service.AbstractService;
-import com.github.owenliou.campkeeper.backend.app.ai.service.CampsiteEmbeddingService;
+import com.github.owenliou.campkeeper.backend.app.ai.service.impl.EmbeddingServiceImpl;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.common.exception.CampNotFoundException;
 import com.github.owenliou.campkeeper.model.entity.Campsite;
@@ -39,7 +39,7 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
     private ICampingClient iCampingClient;
 
     @Autowired
-    private CampsiteEmbeddingService embeddingService;
+    private EmbeddingServiceImpl embeddingService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 

@@ -2,7 +2,7 @@ package com.github.owenliou.campkeeper.backend.app.restcontroller;
 
 import com.github.owenliou.campkeeper.backend.app.converter.CampsiteToDtoConverter;
 import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDTO;
-import com.github.owenliou.campkeeper.backend.app.ai.service.CampsiteEmbeddingService;
+import com.github.owenliou.campkeeper.backend.app.ai.service.impl.EmbeddingServiceImpl;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.common.CustomResult;
 import com.github.owenliou.campkeeper.model.entity.Campsite;
@@ -33,7 +33,7 @@ public class RestCampsiteController extends AbstractSyncRestController {
     private CampsiteToDtoConverter campsiteToDtoConverter;
 
     @Autowired
-    private CampsiteEmbeddingService embeddingService;
+    private EmbeddingServiceImpl embeddingService;
 
     @GetMapping
     @Operation(summary = "查詢營地列表", description = "支援分頁與縣市篩選，預設每頁 20 筆")
@@ -87,10 +87,9 @@ public class RestCampsiteController extends AbstractSyncRestController {
 
     @GetMapping("/search/ai")
     @Operation(summary = "AI 自然語言搜尋", description = "用自然語言描述想找的營地，例如：寵物友善台中高山有電")
-    public CustomResult<List<CampsiteDTO>> aiSearch(
-            @Parameter(description = "自然語言查詢") @RequestParam String query,
+    public CustomResult<List<CampsiteDTO>> aiSearch(@Parameter(description = "自然語言查詢") @RequestParam String query,
             @Parameter(description = "回傳筆數") @RequestParam(defaultValue = "10") int topK) {
-        List<CampsiteDTO> result = embeddingService.semanticSearch(query, topK)
+        List<CampsiteDTO> result = embeddingService.semanticSearchCamp(query, topK)
             .stream()
             .map(campsiteToDtoConverter::convert)
             .toList();

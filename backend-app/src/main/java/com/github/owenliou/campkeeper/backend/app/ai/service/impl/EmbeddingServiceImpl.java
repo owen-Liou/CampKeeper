@@ -1,5 +1,6 @@
-package com.github.owenliou.campkeeper.backend.app.ai.service;
+package com.github.owenliou.campkeeper.backend.app.ai.service.impl;
 
+import com.github.owenliou.campkeeper.backend.app.ai.service.EmbeddingService;
 import com.github.owenliou.campkeeper.backend.app.repository.CampsiteRepository;
 import com.github.owenliou.campkeeper.model.entity.Campsite;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CampsiteEmbeddingService {
+public class EmbeddingServiceImpl implements EmbeddingService {
 
     private final VectorStore vectorStore;
 
@@ -50,7 +51,8 @@ public class CampsiteEmbeddingService {
      * Synchronize all campsite embeddings in batches with a 2-second delay between batches.
      * @return The total number of campsites processed.
      */
-    public int syncAllEmbeddings() {
+    @Override
+    public int syncCampsitesToVectorStore() {
         List<Campsite> all = campsiteRepository.findAll();
 
         int batchSize = 50;
@@ -73,7 +75,7 @@ public class CampsiteEmbeddingService {
         return all.size();
     }
 
-    public List<Campsite> semanticSearch(String query, int topK) {
+    public List<Campsite> semanticSearchCamp(String query, int topK) {
         List<Document> docs = vectorStore.similaritySearch(
             SearchRequest.builder().query(query).topK(topK).build()
         );
