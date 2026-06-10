@@ -2,7 +2,7 @@ package com.github.owenliou.campkeeper.backend.app.restcontroller;
 
 import com.github.owenliou.campkeeper.backend.app.converter.CampsiteToDtoConverter;
 import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDTO;
-import com.github.owenliou.campkeeper.backend.app.service.CampsiteEmbeddingService;
+import com.github.owenliou.campkeeper.backend.app.ai.service.CampsiteEmbeddingService;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.common.CustomResult;
 import com.github.owenliou.campkeeper.model.entity.Campsite;

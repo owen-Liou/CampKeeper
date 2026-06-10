@@ -8,7 +8,7 @@ import com.github.owenliou.campkeeper.backend.app.external.icamping.client.ICamp
 import com.github.owenliou.campkeeper.backend.app.external.icamping.dto.ICampingStore;
 import com.github.owenliou.campkeeper.backend.app.repository.CampsiteRepository;
 import com.github.owenliou.campkeeper.backend.app.service.AbstractService;
-import com.github.owenliou.campkeeper.backend.app.service.CampsiteEmbeddingService;
+import com.github.owenliou.campkeeper.backend.app.ai.service.CampsiteEmbeddingService;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.common.exception.CampNotFoundException;
 import com.github.owenliou.campkeeper.model.entity.Campsite;

@@ -3,10 +3,3 @@ spring:
     url: jdbc:postgresql://localhost:5432/camping
     username: admin
     password: password
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-    properties:
-      hibernate:
-        format_sql: true

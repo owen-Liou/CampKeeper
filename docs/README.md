@@ -1,7 +1,7 @@
 # CampKeeper — 系統功能規劃與 API 設計
 
 > Side project：露營小幫手  
-> 技術棧：Java 21 / Spring Boot 3.5 / PostgreSQL / Docker / Telegram Bot
+> 技術棧：Java 21 / Spring Boot 3.5 / PostgreSQL / pgvector / Spring AI / Docker / Telegram Bot
 
 ---
 
@@ -38,9 +38,15 @@ model
 
 ```
 backend-app/src/main/java/.../backend/app/
+├── ai/
+│   ├── restcontroller/
+│   │   └── AdminController.java             # 管理員操作（向量重建）
+│   └── service/
+│       └── CampsiteEmbeddingService.java    # embedding upsert / 語意搜尋 / 批次同步
 ├── config/
-│   ├── RestClientConfig.java       # RestClient bean 集中管理
-│   ├── SecurityConfig.java         # Spring Security 設定
+│   ├── GoogleGenAiEmbeddingConfig.java  # 覆寫 Spring AI 預設 client，修正 API version
+│   ├── RestClientConfig.java            # RestClient bean 集中管理
+│   ├── SecurityConfig.java              # Spring Security 設定
 │   └── SwaggerConfig.java
 ├── restcontroller/
 │   └── RestCampsiteController.java
@@ -55,15 +61,15 @@ backend-app/src/main/java/.../backend/app/
 ├── dto/
 │   └── CampsiteDTO.java
 └── external/
-    └── icamping/                   # iCamping 外部 API 整合
+    └── icamping/                        # iCamping 外部 API 整合
         ├── client/
         │   └── ICampingClient.java
         ├── dto/
         │   ├── ICampingStore.java
         │   └── ICampingStoreListResponse.java
         └── variables/
-            ├── ICampingApiPath.java # API 路徑 enum
-            └── ICampingApiKey.java  # API key enum
+            ├── ICampingApiPath.java     # API 路徑 enum
+            └── ICampingApiKey.java      # API key enum
 
 model/src/main/java/.../model/
 ├── entity/
@@ -78,14 +84,36 @@ model/src/main/java/.../model/
 
 | Method | Path | 說明 |
 |--------|------|------|
-| GET | `/api/v1/campsites` | 查詢所有營地 |
+| GET | `/api/v1/campsites` | 查詢所有營地（分頁 + 縣市篩選） |
 | GET | `/api/v1/campsites/{id}` | 查詢單筆營地 |
-| POST | `/api/v1/campsites/create` | 新增營地 |
-| PUT | `/api/v1/campsites/{id}` | 更新營地 |
+| POST | `/api/v1/campsites/create` | 新增營地（自動生成 embedding） |
+| PUT | `/api/v1/campsites/{id}` | 更新營地（自動更新 embedding） |
 | DELETE | `/api/v1/campsites/{id}` | 刪除營地 |
-| POST | `/api/v1/campsites/sync` | 從愛露營 API 同步所有營地資料 |
+| POST | `/api/v1/campsites/sync` | 從愛露營 API 同步所有營地資料（含 embedding） |
+| GET | `/api/v1/campsites/search/ai` | **AI 語意搜尋**（自然語言查詢） |
 
 > Context path: `/backend-app`，完整範例：`POST http://localhost:8080/backend-app/api/v1/campsites/sync`
+
+### AI 語意搜尋
+
+```
+GET /api/v1/campsites/search/ai?query=寵物友善台中高山有電&topK=10
+```
+
+| 參數 | 必填 | 說明 |
+|------|------|------|
+| query | ✅ | 自然語言描述，例如「南投森林系近泡湯」 |
+| topK | ❌ | 回傳筆數，預設 10 |
+
+---
+
+## Admin API
+
+| Method | Path | 說明 |
+|--------|------|------|
+| POST | `/api/v1/admin/embeddings/sync` | 將 DB 所有營地重建向量索引 |
+
+> 首次啟動或更換 embedding model 後需執行一次。
 
 ---
 
@@ -131,11 +159,30 @@ model/src/main/java/.../model/
 |------|------|
 | Backend API | Spring Boot 3.5 / Java 21 |
 | ORM | Spring Data JPA / Hibernate |
-| Database | PostgreSQL 15 |
+| Database | PostgreSQL 15（`pgvector/pgvector:pg15` image） |
+| Vector Store | pgvector — HNSW index，cosine distance，768 dims |
+| Embedding Model | Google `gemini-embedding-001`（Matryoshka，截斷至 768 dims 輸出） |
+| AI Framework | Spring AI 1.1.7 |
 | HTTP Client | Spring RestClient（內建於 spring-boot-starter-web） |
 | 推播通知 | Telegram Bot API（規劃中） |
 | 容器化 | Docker Compose |
 | 未來擴充 | K8s（流量成長後遷移） |
+
+### Spring AI 向量搜尋流程
+
+```
+新增/更新/同步營地
+  └── CampsiteServiceImpl
+        └── CampsiteEmbeddingService.upsertEmbedding()
+              └── gemini-embedding-001 → 768-dim vector
+                    └── pgvector (HNSW) 儲存
+
+AI 搜尋請求
+  └── GET /search/ai?query=...
+        └── CampsiteEmbeddingService.semanticSearch()
+              └── query → embedding → cosine similarity search
+                    └── 回傳最相近的 Campsite 列表
+```
 
 ---
 

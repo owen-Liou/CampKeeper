@@ -1,19 +1,39 @@
 spring:
-    application:
-      name : backend-app
-    profiles:
-        active: @profiles.active@
-    datasource:
-        url: jdbc:postgresql://localhost:5432/bugtracker
-        username: postgres
-        password: password
-        driver-class-name: org.postgresql.Driver
-    jpa:
-      open-in-view: false
+  application:
+    name: backend-app
+  profiles:
+    active: @profiles.active@
+  config:
+    import: "optional:file:.env[.properties]"
+  datasource:
+    url: jdbc:postgresql://localhost:5432/bugtracker
+    username: postgres
+    password: password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    open-in-view: false
+  ai:
+    model:
+      embedding:
+        text: google-genai
+    google:
+      genai:
+        api-key: ${GEMINI_API_KEY}
+        embedding:
+          api-key: ${GEMINI_API_KEY}
+          text:
+            options:
+              model: gemini-embedding-001
+              dimensions: 768
+              # embedding-001 and text-embedding-004 have been deprecated.
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        index-type: hnsw
+        distance-type: cosine_distance
+        dimensions: 768
 
 server:
-    port: 8080
-    servlet:
-        context-path: /backend-app
-
-
+  port: 8080
+  servlet:
+    context-path: /backend-app
