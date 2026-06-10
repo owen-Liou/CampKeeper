@@ -41,6 +41,8 @@
         <gson.version>2.13.1</gson.version>
         <spring-ai.version>1.1.7</spring-ai.version>
 
+        <telegrambots.version>7.11.0</telegrambots.version>
+
     </properties>
 
     <modules>
@@ -201,6 +203,17 @@
                 <groupId>com.github.owenliou</groupId>
                 <artifactId>common</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.telegram</groupId>
+                <artifactId>telegrambots-longpolling</artifactId>
+                <version>${telegrambots.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.telegram</groupId>
+                <artifactId>telegrambots-client</artifactId>
+                <version>${telegrambots.version}</version>
             </dependency>
 
         </dependencies>

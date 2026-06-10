@@ -72,6 +72,14 @@
             <artifactId>CGVerify</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots-longpolling</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots-client</artifactId>
+        </dependency>
 
         <!-- Spring AI：Gemini Embedding -->
         <dependency>
