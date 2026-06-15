@@ -12,8 +12,8 @@ public class RestClientConfig {
     public RestClient icampingRestClient() {
         return RestClient.builder()
                 .baseUrl(ICampingApiPath.API_BASE_URL.getPath())
-                .defaultHeader("Accept", "application/json")
-                .defaultHeader("Origin", ICampingApiPath.CLIENT_HOST.getPath())
+                .defaultHeader("Accept", "")
+//                .defaultHeader("Origin", ICampingApiPath.CLIENT_HOST.getPath())
                 .defaultHeader("Referer", ICampingApiPath.CLIENT_HOST.getPath())
                 .build();
     }

@@ -69,6 +69,23 @@ public class CampsiteToDtoConverter extends AbstractDtoConverter<Campsite, Camps
             .sourceUrl(target.getSourceUrl())
             .build();
     }
+
+    public void doUpdate(Campsite source, CampsiteDTO target) {
+        source.setName(target.getName());
+        source.setDescription(target.getDescription());
+        source.setCity(target.getCity());
+        source.setDistrict(target.getDistrict());
+        source.setAltitude(target.getAltitude());
+        source.setLatitude(target.getLatitude());
+        source.setLongitude(target.getLongitude());
+        source.setHasPower(target.getHasPower());
+        source.setHasShower(target.getHasShower());
+        source.setPetFriendly(target.getPetFriendly());
+        source.setStoreName(target.getStoreName());
+        source.setArea(target.getArea());
+        source.setFacilities(target.getFacilities());
+        source.setSourceUrl(target.getSourceUrl());
+    }
 }
 
 

@@ -1,6 +1,7 @@
 package com.github.owenliou.campkeeper.backend.app.telegram;
 
 import com.github.owenliou.campkeeper.backend.app.ai.service.EmbeddingService;
+import com.github.owenliou.campkeeper.backend.app.telegram.varaible.promptText;
 import com.github.owenliou.campkeeper.model.entity.Campsite;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,11 +41,11 @@ public class CampKeeperBot implements LongPollingUpdateConsumer {
         String text = update.getMessage().getText().trim();
         long chatId = update.getMessage().getChatId();
 
-        if (text.startsWith("/start")) {
+        if (text.startsWith(promptText.START.getPrompt())) {
             handleStart(chatId);
-        } else if (text.startsWith("/help")) {
+        } else if (text.startsWith(promptText.HELP.getPrompt())) {
             handleHelp(chatId);
-        } else if (text.startsWith("/search")) {
+        } else if (text.startsWith(promptText.SEARCH.getPrompt())) {
             String query = text.replaceFirst("/search", "").trim();
             handleSearch(chatId, query);
         } else if (!text.startsWith("/")) {
@@ -52,36 +53,23 @@ public class CampKeeperBot implements LongPollingUpdateConsumer {
         }
     }
 
+    /**
+     * Bot 回應 /start 指令，顯示歡迎訊息和使用說明
+     */
     private void handleStart(long chatId) {
-        sendText(chatId, """
-                歡迎使用 CampKeeper 露營助手！
-
-                輸入關鍵字或使用 /search 即可搜尋合適的營地。
-
-                範例：
-                /search 適合親子的山上營地
-                /search 寵物友善 南投
-                /search 有衛浴 海拔高
-
-                輸入 /help 查看完整說明。
-                """);
+        sendText(chatId, promptText.START.getText());
     }
 
+    /**
+     * Bot 回應 /help 指令，顯示指令說明
+     */
     private void handleHelp(long chatId) {
-        sendText(chatId, """
-                指令說明：
-
-                /search <關鍵字> — 語意搜尋營地
-                /start — 顯示歡迎訊息
-                /help — 顯示此說明
-
-                也可以直接輸入任意文字進行搜尋，不需要加 /search 指令。
-                """);
+        sendText(chatId, promptText.HELP.getText());
     }
 
     private void handleSearch(long chatId, String query) {
         if (query.isBlank()) {
-            sendText(chatId, "請輸入搜尋關鍵字，例如：/search 適合親子的山上營地");
+            sendText(chatId, promptText.SEARCH.getText());
             return;
         }
 
@@ -104,7 +92,12 @@ public class CampKeeperBot implements LongPollingUpdateConsumer {
                     sb.append(" | 海拔 ").append(c.getAltitude()).append("m");
                 }
                 sb.append("\n");
-                sb.append("   ").append(buildFeatureTag(c)).append("\n\n");
+                sb.append("   ").append(buildFeatureTag(c)).append("\n");
+                String facilities = buildFacilities(c);
+                if (!facilities.isEmpty()) {
+                    sb.append("   🏕 ").append(facilities).append("\n");
+                }
+                sb.append("\n");
             }
 
             sendText(chatId, sb.toString().trim());
@@ -115,6 +108,20 @@ public class CampKeeperBot implements LongPollingUpdateConsumer {
         }
     }
 
+    /**
+     * 營區設施文字組裡(content)
+     */
+    private String buildFacilities(Campsite c) {
+        if (c.getFacilities() == null || c.getFacilities().isBlank()) return "";
+        return c.getFacilities()
+                .replaceAll("[\\[\\]\"]", "")
+                .replace(",", "、");
+    }
+
+    /**
+     * 營區條件組成
+     * 電力、衛浴、寵物
+     */
     private String buildFeatureTag(Campsite c) {
         StringBuilder tags = new StringBuilder();
         if (Boolean.TRUE.equals(c.getHasPower()))    tags.append("⚡有電 ");
@@ -123,6 +130,9 @@ public class CampKeeperBot implements LongPollingUpdateConsumer {
         return tags.isEmpty() ? "—" : tags.toString().trim();
     }
 
+    /**
+     * Bot 送出訊息
+     */
     private void sendText(long chatId, String text) {
         try {
             telegramClient.execute(SendMessage.builder()

@@ -30,21 +30,21 @@ public class EmbeddingServiceImpl implements EmbeddingService {
      * Upserts the embedding for a given campsite into the vector store.
      * @param campsite The campsite to upsert the embedding for.
      */
-    public void upsertEmbedding(Campsite campsite) {
+    @Override
+    public Document upsertEmbedding(Campsite campsite) {
         String docId = UUID.nameUUIDFromBytes(("campsite-" + campsite.getId()).getBytes()).toString();
+        Document doc = Document.builder()
+                .id(docId)
+                .text(buildContent(campsite))
+                .metadata(Map.of("campsite_id", campsite.getId()))
+                .build();
         try {
             vectorStore.delete(List.of(docId));
-            vectorStore.add(List.of(
-                    Document.builder()
-                            .id(docId)
-                            .text(buildContent(campsite))
-                            .metadata(Map.of("campsite_id", campsite.getId()))
-                            .build()
-            ));
-        }catch (Exception e){
-            log.error("upsertEmbedding error: {}", e.getLocalizedMessage());
-            e.printStackTrace();
+            vectorStore.add(List.of(doc));
+        } catch (Exception e) {
+            log.error("upsertEmbedding error", e);
         }
+        return doc;
     }
 
     /**
@@ -86,8 +86,14 @@ public class EmbeddingServiceImpl implements EmbeddingService {
     }
 
     private String buildContent(Campsite c) {
+        String tags = "";
+        if (c.getFacilities() != null) {
+            tags = "，設施標籤：" + c.getFacilities()
+                    .replaceAll("[\\[\\]\"]", "")
+                    .replace(",", "、");
+        }
         return String.format(
-            "營地：%s，位於%s%s，海拔%s公尺，%s，寵物友善：%s，供電：%s，衛浴：%s。%s",
+            "營地：%s，位於%s%s，海拔%s公尺，%s，寵物友善：%s，供電：%s，衛浴：%s%s。%s",
             c.getName(),
             c.getCity() != null ? c.getCity() : "",
             c.getDistrict() != null ? c.getDistrict() : "",
@@ -96,6 +102,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
             Boolean.TRUE.equals(c.getPetFriendly()) ? "是" : "否",
             Boolean.TRUE.equals(c.getHasPower()) ? "是" : "否",
             Boolean.TRUE.equals(c.getHasShower()) ? "是" : "否",
+            tags,
             c.getDescription() != null ? c.getDescription() : ""
         );
     }

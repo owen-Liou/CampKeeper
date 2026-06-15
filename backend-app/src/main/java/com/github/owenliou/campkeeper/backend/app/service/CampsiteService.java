@@ -21,6 +21,6 @@ public interface CampsiteService extends CommonService<Campsite, Long> {
 
     Page<Campsite> searchCampsites(String city, Pageable pageable);
 
-    int syncFromICamping();
+    Campsite getByStoreName(String storeName);
 
 }

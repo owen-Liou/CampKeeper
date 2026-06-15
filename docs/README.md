@@ -40,9 +40,12 @@ model
 backend-app/src/main/java/.../backend/app/
 ├── ai/
 │   ├── restcontroller/
-│   │   └── AdminController.java             # 管理員操作（向量重建）
+│   │   ├── RestAdminController.java         # 管理員操作（向量重建）
+│   │   └── RestApiController.java           # AI 語意搜尋 API
 │   └── service/
-│       └── CampsiteEmbeddingService.java    # embedding upsert / 語意搜尋 / 批次同步
+│       ├── EmbeddingService.java            # embedding 服務介面
+│       └── impl/
+│           └── EmbeddingServiceImpl.java    # embedding upsert / 語意搜尋 / 批次同步
 ├── config/
 │   ├── GoogleGenAiEmbeddingConfig.java  # 覆寫 Spring AI 預設 client，修正 API version
 │   ├── RestClientConfig.java            # RestClient bean 集中管理
@@ -54,12 +57,14 @@ backend-app/src/main/java/.../backend/app/
 │   ├── CampsiteService.java
 │   └── impl/
 │       └── CampsiteServiceImpl.java
-├── repository/
-│   └── CampsiteRepository.java
 ├── converter/
 │   └── CampsiteToDtoConverter.java
 ├── dto/
 │   └── CampsiteDTO.java
+├── telegram/
+│   ├── CampKeeperBot.java               # Telegram Bot（long-polling，支援語意搜尋）
+│   └── config/
+│       └── TelegramBotConfig.java       # Bot 註冊設定
 └── external/
     └── icamping/                        # iCamping 外部 API 整合
         ├── client/
@@ -90,14 +95,21 @@ model/src/main/java/.../model/
 | PUT | `/api/v1/campsites/{id}` | 更新營地（自動更新 embedding） |
 | DELETE | `/api/v1/campsites/{id}` | 刪除營地 |
 | POST | `/api/v1/campsites/sync` | 從愛露營 API 同步所有營地資料（含 embedding） |
-| GET | `/api/v1/campsites/search/ai` | **AI 語意搜尋**（自然語言查詢） |
 
 > Context path: `/backend-app`，完整範例：`POST http://localhost:8080/backend-app/api/v1/campsites/sync`
+
+---
+
+## AI API
+
+| Method | Path | 說明 |
+|--------|------|------|
+| GET | `/api/v1/ai/search` | **AI 語意搜尋**（自然語言查詢） |
 
 ### AI 語意搜尋
 
 ```
-GET /api/v1/campsites/search/ai?query=寵物友善台中高山有電&topK=10
+GET /api/v1/ai/search?query=寵物友善台中高山有電&topK=10
 ```
 
 | 參數 | 必填 | 說明 |
@@ -117,6 +129,37 @@ GET /api/v1/campsites/search/ai?query=寵物友善台中高山有電&topK=10
 
 ---
 
+## Telegram Bot
+
+Telegram Bot 採用 long-polling 模式，支援自然語言搜尋營地，透過 `EmbeddingService` 串接 AI 語意搜尋。
+
+### 支援指令
+
+| 指令 | 說明 |
+|------|------|
+| `/start` | 顯示歡迎訊息與使用說明 |
+| `/help` | 顯示完整指令說明 |
+| `/search <關鍵字>` | 語意搜尋營地 |
+| 任意文字 | 直接輸入文字即觸發搜尋（不需加指令） |
+
+### 搜尋結果格式
+
+```
+找到 5 筆相關營地：
+
+1. 某某山莊
+   南投縣仁愛鄉 | 海拔 1200m
+   ⚡有電 🚿有衛浴 🐾寵物友善
+```
+
+### 環境變數
+
+| 變數 | 說明 |
+|------|------|
+| `TELEGRAM_BOT_TOKEN` | Telegram Bot Token（從 @BotFather 取得） |
+
+---
+
 ## Campsite Entity 欄位
 
 | 欄位 | 類型 | 說明 |
@@ -124,14 +167,18 @@ GET /api/v1/campsites/search/ai?query=寵物友善台中高山有電&topK=10
 | id | Long | 自增主鍵 |
 | storeName | String | 愛露營唯一識別碼（upsert key） |
 | name | String | 營地中文名稱 |
+| description | TEXT | 營地描述 |
 | area | String | 大區域（北部/中部/南部/東部） |
 | city | String | 縣市 |
 | district | String | 鄉鎮區 |
 | altitude | Integer | 海拔（公尺） |
-| hasPower | Boolean | 有無電源 |
-| petFriendly | Boolean | 寵物友善 |
+| hasPower | Boolean | 有無電源（預設 false） |
+| hasShower | Boolean | 有無衛浴（預設 false） |
+| petFriendly | Boolean | 寵物友善（預設 false） |
 | facilities | TEXT | 設施列表（JSON array） |
 | latitude / longitude | BigDecimal | 座標（愛露營 API 未提供，預留） |
+| sourceUrl | String | 資料來源 URL |
+| createdAt / updatedAt | LocalDateTime | 建立／更新時間（自動維護） |
 
 ---
 
@@ -143,7 +190,7 @@ GET /api/v1/campsites/search/ai?query=寵物友善台中高山有電&topK=10
 |------|------|
 | 資料取得方式 | 呼叫 `ICampingApiPath.STORE_LIST` 取得全部營地 |
 | 同步策略 | 手動觸發（`POST /sync`），以 `store_name` 為 key 做 upsert |
-| 設施解析 | `facility[]` 陣列整體存 JSON，關鍵標籤（電源/寵物）另存 boolean |
+| 設施解析 | `facility[]` 陣列整體存 JSON，關鍵標籤（電源/衛浴/寵物）另存 boolean |
 | API 路徑管理 | `ICampingApiPath` enum（STORE_LIST / STORE_LIST_TOP / STUFF_LIST / EXTERNAL_LINK_LIST） |
 | API Key 管理 | `ICampingApiKey` enum |
 | RestClient 設定 | `RestClientConfig`（base-url、Origin/Referer header 集中管理） |
@@ -164,7 +211,7 @@ GET /api/v1/campsites/search/ai?query=寵物友善台中高山有電&topK=10
 | Embedding Model | Google `gemini-embedding-001`（Matryoshka，截斷至 768 dims 輸出） |
 | AI Framework | Spring AI 1.1.7 |
 | HTTP Client | Spring RestClient（內建於 spring-boot-starter-web） |
-| 推播通知 | Telegram Bot API（規劃中） |
+| 推播通知 | Telegram Bot API（long-polling，已實作） |
 | 容器化 | Docker Compose |
 | 未來擴充 | K8s（流量成長後遷移） |
 
@@ -173,15 +220,21 @@ GET /api/v1/campsites/search/ai?query=寵物友善台中高山有電&topK=10
 ```
 新增/更新/同步營地
   └── CampsiteServiceImpl
-        └── CampsiteEmbeddingService.upsertEmbedding()
+        └── EmbeddingServiceImpl.upsertEmbedding()
               └── gemini-embedding-001 → 768-dim vector
                     └── pgvector (HNSW) 儲存
 
-AI 搜尋請求
-  └── GET /search/ai?query=...
-        └── CampsiteEmbeddingService.semanticSearchCamp()
+AI 搜尋請求（REST API）
+  └── GET /api/v1/ai/search?query=...
+        └── EmbeddingServiceImpl.semanticSearchCamp()
               └── query → embedding → cosine similarity search
                     └── 回傳最相近的 Campsite 列表
+
+AI 搜尋請求（Telegram Bot）
+  └── 用戶輸入文字 / /search <關鍵字>
+        └── CampKeeperBot.handleSearch()
+              └── EmbeddingService.semanticSearchCamp()
+                    └── 格式化結果回傳 Telegram 訊息
 ```
 
 ---

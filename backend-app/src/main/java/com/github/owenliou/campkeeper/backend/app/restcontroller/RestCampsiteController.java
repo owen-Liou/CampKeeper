@@ -2,16 +2,14 @@ package com.github.owenliou.campkeeper.backend.app.restcontroller;
 
 import com.github.owenliou.campkeeper.backend.app.converter.CampsiteToDtoConverter;
 import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDTO;
-import com.github.owenliou.campkeeper.backend.app.ai.service.impl.EmbeddingServiceImpl;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.common.CustomResult;
 import com.github.owenliou.campkeeper.model.entity.Campsite;
-import java.util.List;
 import com.github.owenliou.campkeeper.web.common.restcontroller.AbstractSyncRestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -23,17 +21,13 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/campsites")
+@RequiredArgsConstructor
 @Tag(name = "Campsite API", description = "營地管理 API")
 public class RestCampsiteController extends AbstractSyncRestController {
 
-    @Autowired
-    private CampsiteService campsiteService;
+    private final CampsiteService campsiteService;
 
-    @Autowired
-    private CampsiteToDtoConverter campsiteToDtoConverter;
-
-    @Autowired
-    private EmbeddingServiceImpl embeddingService;
+    private final CampsiteToDtoConverter campsiteToDtoConverter;
 
     @GetMapping
     @Operation(summary = "查詢營地列表", description = "支援分頁與縣市篩選，預設每頁 20 筆")
@@ -44,12 +38,6 @@ public class RestCampsiteController extends AbstractSyncRestController {
         return CustomResult.result(true, page);
     }
 
-    @PostMapping("/sync")
-    @Operation(summary = "同步iCamping資料", description = "從iCamping API 匯入最新營地資料")
-    public CustomResult<String> sync() {
-        int count = campsiteService.syncFromICamping();
-        return CustomResult.result(true, "同步完成，共更新 " + count + " 筆營地資料");
-    }
 
     /**
      * 根據 ID 查詢單筆營地
@@ -83,17 +71,6 @@ public class RestCampsiteController extends AbstractSyncRestController {
     @Operation(summary = "刪除營地", description = "根據營地 ID 刪除營地資訊")
     public void delete(@PathVariable String id) {
         campsiteService.deleteCampsite(id);
-    }
-
-    @GetMapping("/search/ai")
-    @Operation(summary = "AI 自然語言搜尋", description = "用自然語言描述想找的營地，例如：寵物友善台中高山有電")
-    public CustomResult<List<CampsiteDTO>> aiSearch(@Parameter(description = "自然語言查詢") @RequestParam String query,
-            @Parameter(description = "回傳筆數") @RequestParam(defaultValue = "10") int topK) {
-        List<CampsiteDTO> result = embeddingService.semanticSearchCamp(query, topK)
-            .stream()
-            .map(campsiteToDtoConverter::convert)
-            .toList();
-        return CustomResult.result(true, result);
     }
 
 }
