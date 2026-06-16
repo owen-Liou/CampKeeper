@@ -11,10 +11,10 @@ public class RestClientConfig {
     @Bean("iCampingRestClient")
     public RestClient icampingRestClient() {
         return RestClient.builder()
-                .baseUrl(ICampingApiPath.API_BASE_URL.getPath())
+//                .baseUrl(ICampingApiPath.API_BASE_URL.getPath())
                 .defaultHeader("Accept", "")
-//                .defaultHeader("Origin", ICampingApiPath.CLIENT_HOST.getPath())
                 .defaultHeader("Referer", ICampingApiPath.CLIENT_HOST.getPath())
+                .requestInterceptor(new LoggingInterceptor())
                 .build();
     }
 

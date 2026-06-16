@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.owenliou.campkeeper.backend.app.ai.service.impl.EmbeddingServiceImpl;
 import com.github.owenliou.campkeeper.backend.app.external.icamping.client.ICampingClient;
-import com.github.owenliou.campkeeper.backend.app.external.icamping.dto.ICampingStore;
+import com.github.owenliou.campkeeper.backend.app.external.icamping.dto.ICampingStoreListDto;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.backend.app.service.ICampService;
 import com.github.owenliou.campkeeper.model.entity.Campsite;
@@ -27,11 +27,15 @@ public class ICampServiceImpl implements ICampService {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * 取得愛露營所有營地資料，並同步到本地數據庫
+     * @return
+     */
     @Override
     public int syncAll() {
-        List<ICampingStore> stores = iCampingClient.fetchAllStores();
+        List<ICampingStoreListDto> stores = iCampingClient.fetchAllStores();
         int count = 0;
-        for (ICampingStore store : stores) {
+        for (ICampingStoreListDto store : stores) {
             if (store.getStoreName() == null) continue;
             Campsite campsite = campsiteService.getByStoreName(store.getStoreName());
             mapStoreToEntity(store, campsite);
@@ -42,7 +46,7 @@ public class ICampServiceImpl implements ICampService {
         return count;
     }
 
-    private void mapStoreToEntity(ICampingStore store, Campsite campsite) {
+    private void mapStoreToEntity(ICampingStoreListDto store, Campsite campsite) {
         campsite.setStoreName(store.getStoreName());
         campsite.setName(store.getStoreAlias() != null ? store.getStoreAlias() : store.getStoreName());
         campsite.setCity(store.getCity());

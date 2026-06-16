@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ICampingStore {
+public class ICampingStoreListDto {
 
     @JsonProperty("store_name")
     private String storeName;
