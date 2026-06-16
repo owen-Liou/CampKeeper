@@ -1,27 +1,27 @@
 package com.github.owenliou.campkeeper.backend.app.converter;
 
-import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDTO;
+import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDto;
 import com.github.owenliou.campkeeper.common.converter.AbstractDtoConverter;
 import com.github.owenliou.campkeeper.model.entity.Campsite;
 import org.springframework.stereotype.Component;
 
 /**
  * 營地 DTO 轉換器
- * 負責 Campsite 實體與 CampsiteDTO 之間的雙向轉換
+ * 負責 Campsite 實體與 CampsiteDto 之間的雙向轉換
  */
 @Component
-public class CampsiteToDtoConverter extends AbstractDtoConverter<Campsite, CampsiteDTO> {
+public class CampsiteToDtoConverter extends AbstractDtoConverter<Campsite, CampsiteDto> {
     
     /**
      * Entity → DTO
      * 從數據庫實體轉換為 API 回應 DTO
      */
     @Override
-    protected CampsiteDTO doConvert(Campsite source) {
+    protected CampsiteDto doConvert(Campsite source) {
         if (source == null) {
-            return new CampsiteDTO();
+            return new CampsiteDto();
         }
-        return CampsiteDTO.builder()
+        return CampsiteDto.builder()
             .id(source.getId())
             .name(source.getName())
             .description(source.getDescription())
@@ -47,7 +47,7 @@ public class CampsiteToDtoConverter extends AbstractDtoConverter<Campsite, Camps
      * 從 API 請求 DTO 轉換為數據庫實體
      */
     @Override
-    protected Campsite doReverse(CampsiteDTO target) {
+    protected Campsite doReverse(CampsiteDto target) {
         if (target == null) {
             return new Campsite();
         }
@@ -70,7 +70,7 @@ public class CampsiteToDtoConverter extends AbstractDtoConverter<Campsite, Camps
             .build();
     }
 
-    public void doUpdate(Campsite source, CampsiteDTO target) {
+    public void doUpdate(Campsite source, CampsiteDto target) {
         source.setName(target.getName());
         source.setDescription(target.getDescription());
         source.setCity(target.getCity());

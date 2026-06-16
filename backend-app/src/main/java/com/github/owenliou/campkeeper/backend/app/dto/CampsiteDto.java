@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class CampsiteDTO {
+public class CampsiteDto {
 
     private Long id;
 

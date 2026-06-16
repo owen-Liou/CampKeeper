@@ -2,7 +2,7 @@ package com.github.owenliou.campkeeper.backend.app.service.impl;
 
 import com.github.owenliou.campkeeper.backend.app.ai.service.EmbeddingService;
 import com.github.owenliou.campkeeper.backend.app.converter.CampsiteToDtoConverter;
-import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDTO;
+import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDto;
 import com.github.owenliou.campkeeper.backend.app.repository.CampsiteRepository;
 import com.github.owenliou.campkeeper.backend.app.service.AbstractService;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
@@ -35,7 +35,7 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
 
 
     @Override
-    public Campsite createCampsite(CampsiteDTO campsiteDto) {
+    public Campsite createCampsite(CampsiteDto campsiteDto) {
         Campsite campsite = campsiteToDtoConverter.reverse(campsiteDto);
         syncCampsiteToVectorStore(campsite);
         return save(campsite);
@@ -59,7 +59,7 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
 
 
     @Override
-    public Campsite updateCampsite(CampsiteDTO campsiteDto) {
+    public Campsite updateCampsite(CampsiteDto campsiteDto) {
         Long id = campsiteDto.getId();
         Campsite existingCampSite = findById(id).orElseThrow(() -> new CampNotFoundException("Campsite not found with id: " + id));
         campsiteToDtoConverter.doUpdate(existingCampSite, campsiteDto);

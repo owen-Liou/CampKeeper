@@ -26,12 +26,21 @@ public class ICampingClient {
         this.apiKey = ICampingApiKey.GUEST.getValue();
     }
 
+    /**
+     * 取營地列表（不過濾使用者喜好）
+     * @return
+     */
     public List<ICampingStoreListDto> fetchAllStores() {
         String url = buildUrl(ICampingApiPath.API_BASE_URL_TIER1, ICampingApiPath.STORE_LIST,
                 "only_show_user_like", "false");
         return fetchItems(url, ICampingStoreListResponse.class);
     }
 
+    /**
+     * 取營地外部連結（不過濾使用者喜好）
+     * @param storeName
+     * @return
+     */
     public List<ICampingStoreExternalLinkDto> fetchStoreLinksByStoreName(String storeName) {
         String url = buildUrl(ICampingApiPath.API_BASE_URL_TIER2, ICampingApiPath.EXTERNAL_LINK_LIST,
                 "store_name", storeName);
