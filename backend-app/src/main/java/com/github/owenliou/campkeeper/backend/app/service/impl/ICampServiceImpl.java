@@ -3,20 +3,25 @@ package com.github.owenliou.campkeeper.backend.app.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.owenliou.campkeeper.backend.app.ai.service.EmbeddingService;
-import com.github.owenliou.campkeeper.backend.app.ai.service.impl.EmbeddingServiceImpl;
 import com.github.owenliou.campkeeper.backend.app.external.icamping.client.ICampingClient;
 import com.github.owenliou.campkeeper.backend.app.external.icamping.dto.ICampingStoreExternalLinkDto;
 import com.github.owenliou.campkeeper.backend.app.external.icamping.dto.ICampingStoreListDto;
+import com.github.owenliou.campkeeper.backend.app.external.icamping.snapshot.ICampingSnapshotService;
 import com.github.owenliou.campkeeper.backend.app.repository.CampstoreLinkRepository;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.backend.app.service.ICampService;
 import com.github.owenliou.campkeeper.model.entity.Campstore;
 import com.github.owenliou.campkeeper.model.entity.CampstoreLink;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Slf4j
 @Service
 public class ICampServiceImpl implements ICampService {
 
@@ -35,20 +40,60 @@ public class ICampServiceImpl implements ICampService {
     @Autowired
     private CampStoreLinkServiceImpl campStoreLinkService;
 
+    @Autowired
+    private ICampingSnapshotService snapshotService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
-     * 取得愛露營所有營地資料，並同步到本地數據庫
-     * @return
+     * 打一次 API，將營地列表存成 JSON snapshot
+     */
+    @Override
+    public void saveSnapshot() {
+        List<ICampingStoreListDto> stores = iCampingClient.fetchAllStores();
+        snapshotService.saveStores(stores);
+        log.info("Stores snapshot saved: {} records", stores.size());
+    }
+
+    /**
+     * 對每個已存在的營地打 API 取外部連結，存成 JSON snapshot
+     * 需先執行 syncAll() 以確保 DB 有營地資料
+     */
+    @Override
+    public void saveLinksSnapshot() {
+        List<Campstore> all = campsiteService.findAll();
+        Map<String, List<ICampingStoreExternalLinkDto>> linksMap = new HashMap<>();
+
+        for (Campstore campstore : all) {
+            String storeName = campstore.getStoreName();
+            if (storeName == null) continue;
+
+            List<ICampingStoreExternalLinkDto> links = iCampingClient.fetchStoreLinksByStoreName(storeName);
+            linksMap.put(storeName, links);
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+
+        snapshotService.saveLinks(linksMap);
+        log.info("Links snapshot saved: {} stores", linksMap.size());
+    }
+
+    /**
+     * 從 snapshot 檔同步營地資料到 DB
      */
     @Override
     public int syncAll() {
-        List<ICampingStoreListDto> stores = iCampingClient.fetchAllStores();
+        List<ICampingStoreListDto> stores = snapshotService.loadStores();
         int count = 0;
         for (ICampingStoreListDto store : stores) {
             if (store.getStoreName() == null) continue;
             Campstore campstore = campsiteService.getByStoreName(store.getStoreName());
-            if(campstore == null) {
+            if (campstore == null) {
                 campstore = new Campstore();
             }
             mapStoreToEntity(store, campstore);
@@ -59,19 +104,20 @@ public class ICampServiceImpl implements ICampService {
         return count;
     }
 
+    /**
+     * 從 snapshot 檔同步外部連結到 DB
+     */
     @Override
     @Transactional
     public int syncAllLinks() {
-        List<Campstore> all = campsiteService.findAll();
+        Map<String, List<ICampingStoreExternalLinkDto>> linksMap = snapshotService.loadLinks();
         int count = 0;
-        for (Campstore campstore : all) {
-            String storeName = campstore.getStoreName();
-            if (storeName == null) continue;
 
-            List<ICampingStoreExternalLinkDto> links = iCampingClient.fetchStoreLinksByStoreName(storeName);
+        for (Map.Entry<String, List<ICampingStoreExternalLinkDto>> entry : linksMap.entrySet()) {
+            String storeName = entry.getKey();
             campstoreLinkRepository.deleteByStoreName(storeName);
 
-            for (ICampingStoreExternalLinkDto dto : links) {
+            for (ICampingStoreExternalLinkDto dto : entry.getValue()) {
                 CampstoreLink link = CampstoreLink.builder()
                         .storeName(storeName)
                         .name(dto.getName())
@@ -80,13 +126,6 @@ public class ICampServiceImpl implements ICampService {
                         .build();
                 campstoreLinkRepository.save(link);
                 count++;
-            }
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
             }
         }
         return count;
