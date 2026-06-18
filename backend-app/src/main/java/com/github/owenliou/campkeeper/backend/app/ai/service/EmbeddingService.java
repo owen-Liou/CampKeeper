@@ -1,6 +1,6 @@
 package com.github.owenliou.campkeeper.backend.app.ai.service;
 
-import com.github.owenliou.campkeeper.model.entity.Campsite;
+import com.github.owenliou.campkeeper.model.entity.Campstore;
 import org.springframework.ai.document.Document;
 
 import java.util.List;
@@ -19,13 +19,13 @@ public interface EmbeddingService {
      * @param topK
      * @return
      */
-    List<Campsite> semanticSearchCamp(String query, int topK);
+    List<Campstore> semanticSearchCamp(String query, int topK);
 
     /**
      * 新增或更新營地的 embedding 到向量資料庫
-     * @param campsite
+     * @param campstore
      * @return
      */
-    Document upsertEmbedding(Campsite campsite);
+    Document upsertEmbedding(Campstore campstore);
 
 }

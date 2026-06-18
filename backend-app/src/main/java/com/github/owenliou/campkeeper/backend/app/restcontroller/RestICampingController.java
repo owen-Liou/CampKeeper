@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/icamping")
-@Tag(name = "Campsite API", description = "愛露營 API")
+@Tag(name = "Campstore API", description = "愛露營 API")
 public class RestICampingController extends AbstractSyncRestController {
 
     private final ICampService iCampService;

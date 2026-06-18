@@ -2,25 +2,25 @@ package com.github.owenliou.campkeeper.backend.app.service;
 
 import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDto;
 import com.github.owenliou.campkeeper.base.service.CommonService;
-import com.github.owenliou.campkeeper.model.entity.Campsite;
+import com.github.owenliou.campkeeper.model.entity.Campstore;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 /**
  * 營地業務邏輯層接口
  */
-public interface CampsiteService extends CommonService<Campsite, Long> {
+public interface CampsiteService extends CommonService<Campstore, Long> {
 
-    Campsite getByCampsiteId(String campsiteId);
+    Campstore getByCampsiteId(String campsiteId);
 
-    Campsite createCampsite(CampsiteDto campsiteDto);
+    Campstore createCampsite(CampsiteDto campsiteDto);
 
-    Campsite updateCampsite(CampsiteDto campsiteDto);
+    Campstore updateCampsite(CampsiteDto campsiteDto);
 
     void deleteCampsite(String campsiteId);
 
-    Page<Campsite> searchCampsites(String city, Pageable pageable);
+    Page<Campstore> searchCampsites(String city, Pageable pageable);
 
-    Campsite getByStoreName(String storeName);
+    Campstore getByStoreName(String storeName);
 
 }

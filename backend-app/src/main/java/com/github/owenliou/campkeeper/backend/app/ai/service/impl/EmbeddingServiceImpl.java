@@ -2,7 +2,7 @@ package com.github.owenliou.campkeeper.backend.app.ai.service.impl;
 
 import com.github.owenliou.campkeeper.backend.app.ai.service.EmbeddingService;
 import com.github.owenliou.campkeeper.backend.app.repository.CampsiteRepository;
-import com.github.owenliou.campkeeper.model.entity.Campsite;
+import com.github.owenliou.campkeeper.model.entity.Campstore;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.document.Document;
@@ -22,21 +22,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmbeddingServiceImpl implements EmbeddingService {
 
+
     private final VectorStore vectorStore;
 
     private final CampsiteRepository campsiteRepository;
 
     /**
-     * Upserts the embedding for a given campsite into the vector store.
-     * @param campsite The campsite to upsert the embedding for.
+     * Upserts the embedding for a given campstore into the vector store.
+     * @param campstore The campstore to upsert the embedding for.
      */
     @Override
-    public Document upsertEmbedding(Campsite campsite) {
-        String docId = UUID.nameUUIDFromBytes(("campsite-" + campsite.getId()).getBytes()).toString();
+    public Document upsertEmbedding(Campstore campstore) {
+        String docId = UUID.nameUUIDFromBytes(("campstore-" + campstore.getId()).getBytes()).toString();
         Document doc = Document.builder()
                 .id(docId)
-                .text(buildContent(campsite))
-                .metadata(Map.of("campsite_id", campsite.getId()))
+                .text(buildContent(campstore))
+                .metadata(Map.of("campsite_id", campstore.getId()))
                 .build();
         try {
             vectorStore.delete(List.of(docId));
@@ -53,11 +54,11 @@ public class EmbeddingServiceImpl implements EmbeddingService {
      */
     @Override
     public int syncCampsitesToVectorStore() {
-        List<Campsite> all = campsiteRepository.findAll();
+        List<Campstore> all = campsiteRepository.findAll();
 
         int batchSize = 50;
         for (int i = 0; i < all.size(); i += batchSize) {
-            List<Campsite> batch = all.subList(i, Math.min(i + batchSize, all.size()));
+            List<Campstore> batch = all.subList(i, Math.min(i + batchSize, all.size()));
             batch.forEach(this::upsertEmbedding);
 
             log.info("已同步 {}/{} 筆", Math.min(i + batchSize, all.size()), all.size());
@@ -75,7 +76,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
         return all.size();
     }
 
-    public List<Campsite> semanticSearchCamp(String query, int topK) {
+    public List<Campstore> semanticSearchCamp(String query, int topK) {
         List<Document> docs = vectorStore.similaritySearch(
             SearchRequest.builder().query(query).topK(topK).build()
         );
@@ -85,7 +86,7 @@ public class EmbeddingServiceImpl implements EmbeddingService {
         return campsiteRepository.findAllById(ids);
     }
 
-    private String buildContent(Campsite c) {
+    private String buildContent(Campstore c) {
         String tags = "";
         if (c.getFacilities() != null) {
             tags = "，設施標籤：" + c.getFacilities()
@@ -93,13 +94,12 @@ public class EmbeddingServiceImpl implements EmbeddingService {
                     .replace(",", "、");
         }
         return String.format(
-            "營地：%s，位於%s%s，海拔%s公尺，%s，寵物友善：%s，供電：%s，衛浴：%s%s。%s",
+            "營地：%s，位於%s%s，海拔%s公尺，%s，供電：%s，衛浴：%s，%s。%s",
             c.getName(),
             c.getCity() != null ? c.getCity() : "",
             c.getDistrict() != null ? c.getDistrict() : "",
             c.getAltitude() != null ? c.getAltitude() : "不明",
             c.getArea() != null ? c.getArea() : "",
-            Boolean.TRUE.equals(c.getPetFriendly()) ? "是" : "否",
             Boolean.TRUE.equals(c.getHasPower()) ? "是" : "否",
             Boolean.TRUE.equals(c.getHasShower()) ? "是" : "否",
             tags,

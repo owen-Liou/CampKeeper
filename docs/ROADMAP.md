@@ -17,8 +17,8 @@
 目標：讓使用者能瀏覽、搜尋台灣各地營地資訊
 
 - [x] 營地 CRUD API
-- [x] 串接愛露營 API，一鍵同步全台營地資料（`POST /api/v1/campsites/sync`）
-- [x] 營地列表查詢 API（`GET /api/v1/campsites`）
+- [x] 串接愛露營 API，一鍵同步全台營地資料（`POST /api/v1/campstores/sync`）
+- [x] 營地列表查詢 API（`GET /api/v1/campstores`）
 - [ ] 搜尋 / 篩選（縣市、海拔、設施、寵物友善）
 - [ ] 分頁查詢
 - [ ] 地圖整合（Google Maps / OpenStreetMap）

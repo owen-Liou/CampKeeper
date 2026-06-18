@@ -2,7 +2,7 @@ package com.github.owenliou.campkeeper.backend.app.telegram;
 
 import com.github.owenliou.campkeeper.backend.app.ai.service.EmbeddingService;
 import com.github.owenliou.campkeeper.backend.app.telegram.varaible.promptText;
-import com.github.owenliou.campkeeper.model.entity.Campsite;
+import com.github.owenliou.campkeeper.model.entity.Campstore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -76,7 +76,7 @@ public class CampKeeperBot implements LongPollingUpdateConsumer {
         log.info("Telegram search: chatId={}, query={}", chatId, query);
 
         try {
-            List<Campsite> results = embeddingService.semanticSearchCamp(query, SEARCH_TOP_K);
+            List<Campstore> results = embeddingService.semanticSearchCamp(query, SEARCH_TOP_K);
 
             if (results.isEmpty()) {
                 sendText(chatId, "找不到相關營地，請試試其他關鍵字。");
@@ -85,7 +85,7 @@ public class CampKeeperBot implements LongPollingUpdateConsumer {
 
             StringBuilder sb = new StringBuilder("找到 " + results.size() + " 筆相關營地：\n\n");
             for (int i = 0; i < results.size(); i++) {
-                Campsite c = results.get(i);
+                Campstore c = results.get(i);
                 sb.append(i + 1).append(". ").append(c.getName()).append("\n");
                 sb.append("   ").append(c.getCity()).append(c.getDistrict());
                 if (c.getAltitude() != null) {
@@ -111,7 +111,7 @@ public class CampKeeperBot implements LongPollingUpdateConsumer {
     /**
      * 營區設施文字組裡(content)
      */
-    private String buildFacilities(Campsite c) {
+    private String buildFacilities(Campstore c) {
         if (c.getFacilities() == null || c.getFacilities().isBlank()) return "";
         return c.getFacilities()
                 .replaceAll("[\\[\\]\"]", "")
@@ -122,11 +122,10 @@ public class CampKeeperBot implements LongPollingUpdateConsumer {
      * 營區條件組成
      * 電力、衛浴、寵物
      */
-    private String buildFeatureTag(Campsite c) {
+    private String buildFeatureTag(Campstore c) {
         StringBuilder tags = new StringBuilder();
         if (Boolean.TRUE.equals(c.getHasPower()))    tags.append("⚡有電 ");
         if (Boolean.TRUE.equals(c.getHasShower()))   tags.append("🚿有衛浴 ");
-        if (Boolean.TRUE.equals(c.getPetFriendly())) tags.append("🐾寵物友善 ");
         return tags.isEmpty() ? "—" : tags.toString().trim();
     }
 

@@ -105,7 +105,7 @@ public abstract class CommonServiceImpl<T, ID extends Serializable>
 **使用方式**：在實體上標記轉換器
 ```java
 @Entity
-@Table(name = "campsites")
+@Table(name = "campstores")
 public class Campsite {
     @Convert(converter = DatePattern2Converter.class)
     private LocalDate openDate;  // 數據庫存儲為 yyyy-MM-dd
@@ -149,7 +149,7 @@ public class CampsiteService extends CommonServiceImpl<Campsite, Long> {
 
 ```java
 @Entity
-@Table(name = "campsites")
+@Table(name = "campstores")
 @Data
 @Builder
 public class Campsite implements LoggedEntity {
@@ -176,7 +176,7 @@ public class Campsite implements LoggedEntity {
 
 ```java
 @RestController
-@RequestMapping("/api/campsites")
+@RequestMapping("/api/campstores")
 public class CampsiteController {
     
     @Autowired
@@ -190,9 +190,9 @@ public class CampsiteController {
     }
     
     @PostMapping
-    public ResponseEntity<Campsite> create(@RequestBody Campsite campsite) {
+    public ResponseEntity<Campsite> create(@RequestBody Campsite campstore) {
         return ResponseEntity.ok(
-            service.save(campsite)
+            service.save(campstore)
         );
     }
 }

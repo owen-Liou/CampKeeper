@@ -4,7 +4,7 @@ import com.github.owenliou.campkeeper.backend.app.converter.CampsiteToDtoConvert
 import com.github.owenliou.campkeeper.backend.app.dto.CampsiteDto;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.common.CustomResult;
-import com.github.owenliou.campkeeper.model.entity.Campsite;
+import com.github.owenliou.campkeeper.model.entity.Campstore;
 import com.github.owenliou.campkeeper.web.common.restcontroller.AbstractSyncRestController;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/campsites")
 @RequiredArgsConstructor
-@Tag(name = "Campsite API", description = "營地管理 API")
+@Tag(name = "Campstore API", description = "營地管理 API")
 public class RestCampsiteController extends AbstractSyncRestController {
 
     private final CampsiteService campsiteService;
@@ -45,8 +45,8 @@ public class RestCampsiteController extends AbstractSyncRestController {
     @GetMapping("/{id}")
     @Operation(summary = "查詢單筆營地", description = "根據營地 ID 查詢詳細資訊")
     public CustomResult<CampsiteDto> getById(@Parameter(description = "營地 ID") @PathVariable String id) {
-        Campsite campsite = campsiteService.getByCampsiteId(id);
-        return CustomResult.result(true, campsiteToDtoConverter.convert(campsite));
+        Campstore campstore = campsiteService.getByCampsiteId(id);
+        return CustomResult.result(true, campsiteToDtoConverter.convert(campstore));
     }
 
     /**
@@ -55,16 +55,16 @@ public class RestCampsiteController extends AbstractSyncRestController {
     @PostMapping("/create")
     @Operation(summary = "新增營地", description = "添加新的營地資訊")
     public CustomResult<CampsiteDto> create(@RequestBody CampsiteDto campsiteDto) {
-        Campsite campsite = campsiteService.createCampsite(campsiteDto);
-        return CustomResult.result(true, campsiteToDtoConverter.convert(campsite));
+        Campstore campstore = campsiteService.createCampsite(campsiteDto);
+        return CustomResult.result(true, campsiteToDtoConverter.convert(campstore));
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "更新營地", description = "根據營地 ID 更新營地資訊")
     public CustomResult<CampsiteDto> update(@PathVariable String id, @RequestBody CampsiteDto campsiteDto) {
         campsiteDto.setId(Long.parseLong(id));
-        Campsite campsite = campsiteService.updateCampsite(campsiteDto);
-        return CustomResult.result(true, campsiteToDtoConverter.convert(campsite));
+        Campstore campstore = campsiteService.updateCampsite(campsiteDto);
+        return CustomResult.result(true, campsiteToDtoConverter.convert(campstore));
     }
 
     @DeleteMapping("/{id}")

@@ -45,13 +45,13 @@ public abstract class AbstractRestController {
 
 **使用範例**：
 ```java
-@GetMapping("/campsites/{id}")
+@GetMapping("/campstores/{id}")
 public Mono<ResponseEntity<BaseReply>> getCampsite(@PathVariable Long id) {
-    Campsite campsite = service.findById(id).orElse(null);
-    return ok(campsite);  // HTTP 200 + BaseReply 包裝
+    Campsite campstore = service.findById(id).orElse(null);
+    return ok(campstore);  // HTTP 200 + BaseReply 包裝
 }
 
-@GetMapping("/campsites")
+@GetMapping("/campstores")
 public Mono<ResponseEntity<BaseReply>> list(Pageable pageable) {
     Page<Campsite> page = service.findAll(pageable);
     return ok(page);  // 自動包含分頁信息
@@ -204,7 +204,7 @@ http://localhost:8080/swagger-ui.html
 
 ```java
 @RestController
-@RequestMapping("/api/campsites")
+@RequestMapping("/api/campstores")
 @Tag(name = "Campsite API", description = "營地管理 API")
 public class CampsiteController extends AbstractRestController {
     
@@ -217,9 +217,9 @@ public class CampsiteController extends AbstractRestController {
     @GetMapping("/{id}")
     @Operation(summary = "獲取營地詳情")
     public Mono<ResponseEntity<BaseReply>> getCampsite(@PathVariable Long id) {
-        Campsite campsite = service.findById(id)
+        Campsite campstore = service.findById(id)
             .orElseThrow(() -> new CampNotFoundException("Campsite not found"));
-        return ok(converter.convert(campsite));
+        return ok(converter.convert(campstore));
     }
     
     @GetMapping
@@ -238,8 +238,8 @@ public class CampsiteController extends AbstractRestController {
         HttpServletRequest request
     ) {
         checkApiKey(request);  // API Key 驗證
-        Campsite campsite = converter.reverse(dto);
-        return ok(service.save(campsite));
+        Campsite campstore = converter.reverse(dto);
+        return ok(service.save(campstore));
     }
     
     @DeleteMapping("/{id}")
@@ -384,7 +384,7 @@ public class CampsiteDtoConverter extends AbstractDtoConverter<Campsite, Campsit
 
 // 4. 創建 REST 控制器
 @RestController
-@RequestMapping("/api/campsites")
+@RequestMapping("/api/campstores")
 public class CampsiteController extends AbstractRestController {
     @GetMapping("/{id}")
     public Mono<ResponseEntity<BaseReply>> get(@PathVariable Long id) {

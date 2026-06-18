@@ -11,6 +11,9 @@ COPY base/pom.xml base/
 COPY model/pom.xml model/
 COPY config/pom.xml config/
 COPY backend-app/pom.xml backend-app/
+COPY web-common/pom.xml web-common/
+COPY common/pom.xml common/
+COPY lib lib/
 
 # 下載依賴
 RUN mvn dependency:go-offline -B
@@ -20,6 +23,8 @@ COPY base/src base/src
 COPY model/src model/src
 COPY config/src config/src
 COPY backend-app/src backend-app/src
+COPY web-common/src web-common/src
+COPY common/src common/src
 
 # 打包
 RUN mvn clean package -pl backend-app -am -DskipTests -Pdev
@@ -33,7 +38,7 @@ RUN addgroup -S campkeeper && adduser -S campkeeper -G campkeeper
 
 COPY --from=builder /app/backend-app/target/*.jar app.jar
 
-RUN chown campkeeper:campkeeper app.jar
+RUN mkdir -p /app/logs && chown -R campkeeper:campkeeper /app/logs app.jar
 
 USER campkeeper
 

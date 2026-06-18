@@ -19,14 +19,19 @@ services:
     networks:
       - default
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_PROFILES_ACTIVE=dev-lab
       - SPRING_DATASOURCE_URL=jdbc:postgresql://camp-keeper-db:5432/camping
       - SPRING_DATASOURCE_USERNAME=admin
       - SPRING_DATASOURCE_PASSWORD=password
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - REDIS_HOST=camp-keeper-redis
+      - REDIS_PORT=6379
     depends_on:
       camp-keeper-db:
-        condition: service_healthy   # ← 等 DB 健康才啟動 app
+        condition: service_healthy
+      camp-keeper-redis:
+        condition: service_healthy
 
   camp-keeper-db:
     image: pgvector/pgvector:pg15    # ← 換成 pgvector image，內建 vector extension
@@ -49,6 +54,25 @@ services:
       timeout: 5s
       retries: 5
 
+  camp-keeper-redis:
+    image: redis:7-alpine
+    container_name: camp-keeper-redis
+    hostname: camp-keeper-redis
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - default
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 volumes:
   pgdata:
+    driver: local
+  redisdata:
     driver: local

@@ -76,14 +76,14 @@ CustomResult.result(false, null);
 **使用範例**：
 ```java
 // JSON 序列化示例
-Campsite campsite = new Campsite();
-campsite.setOpenDate(LocalDate.now());
-String json = JsonUtils.toJson(campsite);
+Campsite campstore = new Campsite();
+campstore.setOpenDate(LocalDate.now());
+String json = JsonUtils.toJson(campstore);
 // JSON 中自動轉換為日期格式
 
 // JSON 反序列化示例
 String json = "{\"openDate\": \"2026-05-06\", ...}";
-Campsite campsite = JsonUtils.fromJson(json, Campsite.class);
+Campsite campstore = JsonUtils.fromJson(json, Campsite.class);
 // 自動轉換為 LocalDate
 ```
 
@@ -230,8 +230,8 @@ public class CampsiteDtoConverter extends AbstractDtoConverter<Campsite, Campsit
 private CampsiteDtoConverter converter;
 
 public void test() {
-    Campsite campsite = new Campsite(...);
-    CampsiteDTO dto = converter.convert(campsite);
+    Campsite campstore = new Campsite(...);
+    CampsiteDTO dto = converter.convert(campstore);
     
     // 反向轉換
     Campsite restored = converter.reverse(dto);
@@ -271,8 +271,8 @@ public class ReviewDtoConverter extends AbstractDtoConverter<Review, ReviewDTO> 
 **使用範例 3：List 轉換**
 ```java
 // 轉換列表
-List<Campsite> campsites = campsiteService.findAll();
-List<CampsiteDTO> dtos = campsites.stream()
+List<Campsite> campstores = campsiteService.findAll();
+List<CampsiteDTO> dtos = campstores.stream()
     .map(converter::convert)
     .collect(Collectors.toList());
 ```
@@ -285,7 +285,7 @@ List<CampsiteDTO> dtos = campsites.stream()
 
 ```java
 @RestController
-@RequestMapping("/api/campsites")
+@RequestMapping("/api/campstores")
 public class CampsiteController {
     
     @Autowired
@@ -297,9 +297,9 @@ public class CampsiteController {
     @GetMapping("/{id}")
     public CustomResult<CampsiteDTO> getCampsite(@PathVariable Long id) {
         try {
-            Campsite campsite = service.findById(id)
+            Campsite campstore = service.findById(id)
                 .orElseThrow(() -> new CampNotFoundException("Campsite not found"));
-            CampsiteDTO dto = converter.convert(campsite);
+            CampsiteDTO dto = converter.convert(campstore);
             return CustomResult.result(true, dto);
         } catch (CampNotFoundException e) {
             return CustomResult.result(false, null);
@@ -308,8 +308,8 @@ public class CampsiteController {
     
     @PostMapping("/{id}/export")
     public ResponseEntity<byte[]> export(@PathVariable Long id) throws IOException {
-        Campsite campsite = service.findById(id).orElseThrow();
-        String json = JsonUtils.toJson(campsite);
+        Campsite campstore = service.findById(id).orElseThrow();
+        String json = JsonUtils.toJson(campstore);
         
         // 壓縮數據
         String compressed = StringCompressor.compressZstd(json);

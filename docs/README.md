@@ -89,14 +89,14 @@ model/src/main/java/.../model/
 
 | Method | Path | 說明 |
 |--------|------|------|
-| GET | `/api/v1/campsites` | 查詢所有營地（分頁 + 縣市篩選） |
-| GET | `/api/v1/campsites/{id}` | 查詢單筆營地 |
-| POST | `/api/v1/campsites/create` | 新增營地（自動生成 embedding） |
-| PUT | `/api/v1/campsites/{id}` | 更新營地（自動更新 embedding） |
-| DELETE | `/api/v1/campsites/{id}` | 刪除營地 |
-| POST | `/api/v1/campsites/sync` | 從愛露營 API 同步所有營地資料（含 embedding） |
+| GET | `/api/v1/campstores` | 查詢所有營地（分頁 + 縣市篩選） |
+| GET | `/api/v1/campstores/{id}` | 查詢單筆營地 |
+| POST | `/api/v1/campstores/create` | 新增營地（自動生成 embedding） |
+| PUT | `/api/v1/campstores/{id}` | 更新營地（自動更新 embedding） |
+| DELETE | `/api/v1/campstores/{id}` | 刪除營地 |
+| POST | `/api/v1/campstores/sync` | 從愛露營 API 同步所有營地資料（含 embedding） |
 
-> Context path: `/backend-app`，完整範例：`POST http://localhost:8080/backend-app/api/v1/campsites/sync`
+> Context path: `/backend-app`，完整範例：`POST http://localhost:8080/backend-app/api/v1/campstores/sync`
 
 ---
 

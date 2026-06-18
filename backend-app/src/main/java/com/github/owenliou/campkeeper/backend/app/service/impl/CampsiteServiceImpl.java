@@ -7,7 +7,7 @@ import com.github.owenliou.campkeeper.backend.app.repository.CampsiteRepository;
 import com.github.owenliou.campkeeper.backend.app.service.AbstractService;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.common.exception.CampNotFoundException;
-import com.github.owenliou.campkeeper.model.entity.Campsite;
+import com.github.owenliou.campkeeper.model.entity.Campstore;
 import org.springframework.ai.document.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,7 +22,7 @@ import org.springframework.data.domain.Pageable;
  */
 @Service
 @Transactional
-public class CampsiteServiceImpl extends AbstractService<Campsite, Long> implements CampsiteService {
+public class CampsiteServiceImpl extends AbstractService<Campstore, Long> implements CampsiteService {
 
     @Autowired
     private CampsiteRepository repository;
@@ -35,33 +35,33 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
 
 
     @Override
-    public Campsite createCampsite(CampsiteDto campsiteDto) {
-        Campsite campsite = campsiteToDtoConverter.reverse(campsiteDto);
-        syncCampsiteToVectorStore(campsite);
-        return save(campsite);
+    public Campstore createCampsite(CampsiteDto campsiteDto) {
+        Campstore campstore = campsiteToDtoConverter.reverse(campsiteDto);
+        syncCampsiteToVectorStore(campstore);
+        return save(campstore);
     }
 
     @Override
-    public Campsite getByCampsiteId(String campsiteId) {
+    public Campstore getByCampsiteId(String campsiteId) {
         Long id = Long.parseLong(campsiteId);
-        return findById(id).orElseThrow(() -> new CampNotFoundException("Campsite not found with id: " + id));
+        return findById(id).orElseThrow(() -> new CampNotFoundException("Campstore not found with id: " + id));
     }
 
     @Override
-    public Page<Campsite> searchCampsites(String city, Pageable pageable) {
+    public Page<Campstore> searchCampsites(String city, Pageable pageable) {
         return repository.searchPaged(city, pageable);
     }
 
     @Override
-    public Campsite getByStoreName(String storeName) {
+    public Campstore getByStoreName(String storeName) {
         return repository.findByStoreName(storeName).orElse(null);
     }
 
 
     @Override
-    public Campsite updateCampsite(CampsiteDto campsiteDto) {
+    public Campstore updateCampsite(CampsiteDto campsiteDto) {
         Long id = campsiteDto.getId();
-        Campsite existingCampSite = findById(id).orElseThrow(() -> new CampNotFoundException("Campsite not found with id: " + id));
+        Campstore existingCampSite = findById(id).orElseThrow(() -> new CampNotFoundException("Campstore not found with id: " + id));
         campsiteToDtoConverter.doUpdate(existingCampSite, campsiteDto);
         syncCampsiteToVectorStore(existingCampSite);
         return save(existingCampSite);
@@ -70,12 +70,12 @@ public class CampsiteServiceImpl extends AbstractService<Campsite, Long> impleme
     @Override
     public void deleteCampsite(String campsiteId) {
         Long id = Long.parseLong(campsiteId);
-        Campsite existingCampSite = findById(id).orElseThrow(() -> new CampNotFoundException("Campsite not found with id: " + id));
+        Campstore existingCampSite = findById(id).orElseThrow(() -> new CampNotFoundException("Campstore not found with id: " + id));
         delete(existingCampSite);
     }
 
-    public Document syncCampsiteToVectorStore(Campsite campsite){
-        return embeddingService.upsertEmbedding(campsite);
+    public Document syncCampsiteToVectorStore(Campstore campstore){
+        return embeddingService.upsertEmbedding(campstore);
     }
 
 }

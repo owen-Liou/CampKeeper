@@ -2,22 +2,22 @@ package com.github.owenliou.campkeeper.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 
 /**
- * 營地實體類別，對應資料庫中的campsites表。
+ * 營地實體類別，對應資料庫中的campstore表。
  * 包含營地的基本資訊，如名稱、描述、位置、設施等。
  * 同時包含資料來源URL和時間戳記，以便追蹤資料的來源和更新狀態。
  */
 @Entity
-@Table(name = "campsites")
+@Table(name = "campstore")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Campsite {
+public class Campstore {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,20 +37,12 @@ public class Campsite {
 
     private Integer altitude;   // 海拔（公尺）
 
-    @Column(precision = 9, scale = 6)
-    private BigDecimal latitude;    // 緯度
-
-    @Column(precision = 9, scale = 6)
-    private BigDecimal longitude;   // 經度
-
     @Column(name = "has_power")
     private Boolean hasPower = false;       // 有無電
 
     @Column(name = "has_shower")
     private Boolean hasShower = false;      // 有無衛浴
 
-    @Column(name = "pet_friendly")
-    private Boolean petFriendly = false;    // 寵物友善
 
     @Column(name = "store_name", unique = true, length = 50)
     private String storeName;   // 愛露營唯一識別碼（用於 upsert）

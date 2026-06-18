@@ -7,7 +7,7 @@ import com.github.owenliou.campkeeper.backend.app.external.icamping.client.ICamp
 import com.github.owenliou.campkeeper.backend.app.external.icamping.dto.ICampingStoreListDto;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.backend.app.service.ICampService;
-import com.github.owenliou.campkeeper.model.entity.Campsite;
+import com.github.owenliou.campkeeper.model.entity.Campstore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -37,36 +37,38 @@ public class ICampServiceImpl implements ICampService {
         int count = 0;
         for (ICampingStoreListDto store : stores) {
             if (store.getStoreName() == null) continue;
-            Campsite campsite = campsiteService.getByStoreName(store.getStoreName());
-            mapStoreToEntity(store, campsite);
-            Campsite saved = campsiteService.save(campsite);
+            Campstore campstore = campsiteService.getByStoreName(store.getStoreName());
+            if(campstore == null) {
+                campstore = new Campstore();
+            }
+            mapStoreToEntity(store, campstore);
+            Campstore saved = campsiteService.save(campstore);
             embeddingService.upsertEmbedding(saved);
             count++;
         }
         return count;
     }
 
-    private void mapStoreToEntity(ICampingStoreListDto store, Campsite campsite) {
-        campsite.setStoreName(store.getStoreName());
-        campsite.setName(store.getStoreAlias() != null ? store.getStoreAlias() : store.getStoreName());
-        campsite.setCity(store.getCity());
-        campsite.setDistrict(store.getDistrict());
-        campsite.setArea(store.getArea());
+    private void mapStoreToEntity(ICampingStoreListDto store, Campstore campstore) {
+        campstore.setStoreName(store.getStoreName());
+        campstore.setName(store.getStoreAlias() != null ? store.getStoreAlias() : store.getStoreName());
+        campstore.setCity(store.getCity());
+        campstore.setDistrict(store.getDistrict());
+        campstore.setArea(store.getArea());
         if (store.getAltitude() != null && !store.getAltitude().isBlank()) {
             try {
-                campsite.setAltitude(Integer.parseInt(store.getAltitude()));
+                campstore.setAltitude(Integer.parseInt(store.getAltitude()));
             } catch (NumberFormatException ignored) {
             }
         }
         List<String> facilities = store.getFacility();
         if (facilities != null) {
-            campsite.setHasPower(facilities.contains("提供電源"));
-            campsite.setPetFriendly(facilities.contains("寵物同行"));
+            campstore.setHasPower(facilities.contains("提供電源"));
             try {
-                campsite.setFacilities(objectMapper.writeValueAsString(facilities));
+                campstore.setFacilities(objectMapper.writeValueAsString(facilities));
             } catch (JsonProcessingException ignored) {
             }
         }
-        campsite.setSourceUrl("https://m.icamping.app");
+        campstore.setSourceUrl("https://m.icamping.app");
     }
 }

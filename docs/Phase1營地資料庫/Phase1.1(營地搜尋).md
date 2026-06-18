@@ -19,15 +19,15 @@
 
 | Method | 路徑 | 說明 |
 |--------|------|------|
-| GET    | `/api/v1/campsites` | 查詢營地列表（含篩選） |
-| GET    | `/api/v1/campsites/{id}` | 查詢單筆營地 |
-| POST   | `/api/v1/campsites` | 新增營地 |
-| PUT    | `/api/v1/campsites/{id}` | 更新營地 |
-| DELETE | `/api/v1/campsites/{id}` | 刪除營地 |
+| GET    | `/api/v1/campstores` | 查詢營地列表（含篩選） |
+| GET    | `/api/v1/campstores/{id}` | 查詢單筆營地 |
+| POST   | `/api/v1/campstores` | 新增營地 |
+| PUT    | `/api/v1/campstores/{id}` | 更新營地 |
+| DELETE | `/api/v1/campstores/{id}` | 刪除營地 |
 
 ---
 
-### GET `/api/v1/campsites` — 查詢列表
+### GET `/api/v1/campstores` — 查詢列表
 
 **Query Parameters**
 
@@ -70,7 +70,7 @@
 
 ---
 
-### GET `/api/v1/campsites/{id}` — 查詢單筆
+### GET `/api/v1/campstores/{id}` — 查詢單筆
 
 **Response 200**
 
@@ -87,7 +87,7 @@
   "hasPower": true,
   "hasShower": true,
   "petFriendly": false,
-  "sourceUrl": "https://example.com/campsite",
+  "sourceUrl": "https://example.com/campstore",
   "createdAt": "2025-01-01T00:00:00",
   "updatedAt": "2025-01-01T00:00:00"
 }
@@ -104,7 +104,7 @@
 
 ---
 
-### POST `/api/v1/campsites` — 新增營地
+### POST `/api/v1/campstores` — 新增營地
 
 **Request Body**
 
@@ -120,7 +120,7 @@
   "hasPower": true,
   "hasShower": true,
   "petFriendly": false,
-  "sourceUrl": "https://example.com/campsite"
+  "sourceUrl": "https://example.com/campstore"
 }
 ```
 
@@ -145,7 +145,7 @@
 
 ---
 
-### PUT `/api/v1/campsites/{id}` — 更新營地
+### PUT `/api/v1/campstores/{id}` — 更新營地
 
 Request Body 與 POST 相同，全欄位更新。
 
@@ -154,7 +154,7 @@ Request Body 與 POST 相同，全欄位更新。
 
 ---
 
-### DELETE `/api/v1/campsites/{id}` — 刪除營地
+### DELETE `/api/v1/campstores/{id}` — 刪除營地
 
 **Response 204**：No Content（刪除成功）  
 **Response 404**：找不到該 id

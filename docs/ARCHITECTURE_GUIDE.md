@@ -55,7 +55,7 @@ CampKeeper (Parent POM)
 
 ```
 1. 用戶發送請求
-   POST /api/campsites
+   POST /api/campstores
    {
      "name": "山林營地",
      "openDate": "2026-05-06",
@@ -64,14 +64,14 @@ CampKeeper (Parent POM)
    ↓
 
 2. backend-app 路由到 CampsiteController
-   @RestController @RequestMapping("/api/campsites")
+   @RestController @RequestMapping("/api/campstores")
    ↓
 
 3. CampsiteController extends AbstractRestController
    @PostMapping
    public Mono<ResponseEntity<BaseReply>> create(@RequestBody CampsiteDTO dto) {
-       Campsite campsite = converter.reverse(dto);  // DTO → Entity
-       Campsite saved = service.save(campsite);
+       Campsite campstore = converter.reverse(dto);  // DTO → Entity
+       Campsite saved = service.save(campstore);
        return ok(saved);  // 自動包裝為 HTTP 200 + BaseReply
    }
    ↓
@@ -88,7 +88,7 @@ CampKeeper (Parent POM)
    ↓
 
 6. Campsite 實體
-   @Entity @Table(name = "campsites")
+   @Entity @Table(name = "campstores")
    @Convert(converter = DatePattern2Converter.class)
    LocalDate openDate;  // 數據庫: yyyy-MM-dd
    
@@ -96,7 +96,7 @@ CampKeeper (Parent POM)
    ↓
 
 7. PostgreSQL 數據庫
-   INSERT INTO campsites(name, open_date, is_active, created_date, updated_date)
+   INSERT INTO campstores(name, open_date, is_active, created_date, updated_date)
    VALUES('山林營地', '2026-05-06', 1, NOW(), NOW());
    
    ✅ 完成！
@@ -123,7 +123,7 @@ CampKeeper (Parent POM)
 
 ```java
 @Entity
-@Table(name = "campsites")
+@Table(name = "campstores")
 @Data
 @Builder
 public class Campsite implements LoggedEntity {
@@ -179,7 +179,7 @@ public class CampsiteDtoConverter extends AbstractDtoConverter<Campsite, Campsit
 
 ```java
 @RestController
-@RequestMapping("/api/campsites")
+@RequestMapping("/api/campstores")
 public class CampsiteController extends AbstractRestController {
     
     @Autowired
@@ -190,14 +190,14 @@ public class CampsiteController extends AbstractRestController {
     
     @GetMapping("/{id}")
     public Mono<ResponseEntity<BaseReply>> get(@PathVariable Long id) {
-        Campsite campsite = service.findById(id).orElseThrow();
-        return ok(converter.convert(campsite));
+        Campsite campstore = service.findById(id).orElseThrow();
+        return ok(converter.convert(campstore));
     }
     
     @PostMapping
     public Mono<ResponseEntity<BaseReply>> create(@RequestBody CampsiteDTO dto) {
-        Campsite campsite = converter.reverse(dto);
-        return ok(service.save(campsite));
+        Campsite campstore = converter.reverse(dto);
+        return ok(service.save(campstore));
     }
 }
 ```
