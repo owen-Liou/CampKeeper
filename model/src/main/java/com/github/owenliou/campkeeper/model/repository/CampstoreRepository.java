@@ -7,8 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CampsiteRepository extends JpaRepository<Campstore, Long>,
-        JpaSpecificationExecutor<Campstore> {
+public interface CampstoreRepository extends JpaRepository<Campstore, Long>, JpaSpecificationExecutor<Campstore> {
 
     List<Campstore> findByCity(String city);
 

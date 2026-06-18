@@ -2,15 +2,19 @@ package com.github.owenliou.campkeeper.backend.app.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.owenliou.campkeeper.backend.app.ai.service.EmbeddingService;
 import com.github.owenliou.campkeeper.backend.app.ai.service.impl.EmbeddingServiceImpl;
 import com.github.owenliou.campkeeper.backend.app.external.icamping.client.ICampingClient;
+import com.github.owenliou.campkeeper.backend.app.external.icamping.dto.ICampingStoreExternalLinkDto;
 import com.github.owenliou.campkeeper.backend.app.external.icamping.dto.ICampingStoreListDto;
+import com.github.owenliou.campkeeper.backend.app.repository.CampstoreLinkRepository;
 import com.github.owenliou.campkeeper.backend.app.service.CampsiteService;
 import com.github.owenliou.campkeeper.backend.app.service.ICampService;
 import com.github.owenliou.campkeeper.model.entity.Campstore;
+import com.github.owenliou.campkeeper.model.entity.CampstoreLink;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -23,7 +27,13 @@ public class ICampServiceImpl implements ICampService {
     private CampsiteService campsiteService;
 
     @Autowired
-    private EmbeddingServiceImpl embeddingService;
+    private EmbeddingService embeddingService;
+
+    @Autowired
+    private CampstoreLinkRepository campstoreLinkRepository;
+
+    @Autowired
+    private CampStoreLinkServiceImpl campStoreLinkService;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -47,6 +57,48 @@ public class ICampServiceImpl implements ICampService {
             count++;
         }
         return count;
+    }
+
+    @Override
+    @Transactional
+    public int syncAllLinks() {
+        List<Campstore> all = campsiteService.findAll();
+        int count = 0;
+        for (Campstore campstore : all) {
+            String storeName = campstore.getStoreName();
+            if (storeName == null) continue;
+
+            List<ICampingStoreExternalLinkDto> links = iCampingClient.fetchStoreLinksByStoreName(storeName);
+            campstoreLinkRepository.deleteByStoreName(storeName);
+
+            for (ICampingStoreExternalLinkDto dto : links) {
+                CampstoreLink link = CampstoreLink.builder()
+                        .storeName(storeName)
+                        .name(dto.getName())
+                        .link(dto.getLink())
+                        .sequence(parseSequence(dto.getSequence()))
+                        .build();
+                campstoreLinkRepository.save(link);
+                count++;
+            }
+
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
+        }
+        return count;
+    }
+
+    private Integer parseSequence(String sequence) {
+        if (sequence == null || sequence.isBlank()) return 0;
+        try {
+            return Integer.parseInt(sequence);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
     private void mapStoreToEntity(ICampingStoreListDto store, Campstore campstore) {

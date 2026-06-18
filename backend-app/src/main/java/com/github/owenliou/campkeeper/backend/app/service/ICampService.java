@@ -4,4 +4,6 @@ public interface ICampService {
 
     int syncAll();
 
+    int syncAllLinks();
+
 }
